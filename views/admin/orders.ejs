@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Orders | CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/adminNavbar.css">
+  <link rel="stylesheet" href="/css/adminOrders.css">
+  <link rel="stylesheet" href="/css/adminStatusUpdate.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<%- include("../partials/adminNavbar") %>
+
+<div class="admin-orders-container">
+  <h1>Manage Orders</h1>
+
+  <div class="orders-table-wrapper">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Total (₹)</th>
+          <th>Payment</th>
+          <th>Created</th>
+          <th>Detail</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach(order => { %>
+          <tr>
+            <td>#<%= order.id %></td>
+            <td><%= order.customer_name %></td>
+            <td>
+              <span class="badge status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
+                <%= order.status %>
+              </span>
+            </td>
+            <td><%= order.total_amount %></td>
+            <td><%= order.payment_status %></td>
+            <td><%= new Date(order.created_at).toLocaleString() %></td>
+            <td><a href="/admin/orders/<%= order.id %>" class="btn-view">View <i class="fa-solid fa-eye"></i></a></td>
+            <td>
+              <div class="status-container">
+                <form action="/admin/orders/<%= order.id %>/status" method="POST" class="status-form">
+                  <select name="status" class="status-select">
+                    <% const statuses = ['Pending', 'Accepted', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled']; %>
+                    <% statuses.forEach((s, index) => { %>
+                      <option value="<%= s %>" 
+                              <%= s === order.status ? 'selected' : '' %> 
+                              data-position="<%= index %>"
+                              <%= index < statuses.indexOf(order.status) ? 'disabled' : '' %>>
+                        <%= s %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </form>
+                <button class="lock-btn <%= statuses.indexOf(order.status) > 0 ? 'locked' : '' %>" 
+                        data-order-id="<%= order.id %>"
+                        title="Click to confirm status change"
+                        data-current-position="<%= statuses.indexOf(order.status) %>">
+                  <i class="fas <%= statuses.indexOf(order.status) > 0 ? 'fa-lock' : 'fa-lock-open' %>"></i>
+                </button>
+                
+                <div class="confirmation-modal" data-order-id="<%= order.id %>">
+                  <div class="confirmation-box">
+                    <h3 class="confirmation-title">Confirm Status Update</h3>
+                    <p class="confirmation-message">Are you sure you want to update the order status to "<span class="status-value"></span>"?</p>
+                    <div class="confirmation-buttons">
+                      <button class="confirmation-btn cancel">Cancel</button>
+                      <button class="confirmation-btn confirm">Yes, Update</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script src="/js/adminOrders.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+.order-success-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.order-success-card {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.order-success-card h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #2ecc71;
+}
+
+.order-success-card p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.order-details {
+  text-align: left;
+  background-color: #fafafa;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin: 20px 0;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.6;
+  border: 1px solid #eee;
+}
+
+.order-details p {
+  margin: 6px 0;
+}
+
+.order-success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.order-success-actions .btn {
+  padding: 12px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  color: white;
+  background: #000;
+  transition: 0.3s ease;
+}
+
+.order-success-actions .btn:hover {
+  background: #333;
+}
+
+.order-success-actions .btn.secondary {
+  background: #ccc;
+  color: #333;
+}
+
+.order-success-actions .btn.secondary:hover {
+  background: #bbb;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .order-success-card {
+    padding: 25px 20px;
+  }
+
+  .order-success-card h1 {
+    font-size: 1.6rem;
+  }
+
+  .order-details {
+    font-size: 0.9rem;
+  }
+
+  .order-success-actions .btn {
+    font-size: 0.95rem;
+  }
+}

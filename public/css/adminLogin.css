@@ -1,0 +1,48 @@
+.admin-login-heading {
+    font-size: 1.3rem;
+    margin-top: 60px;
+    text-align: center;
+}
+
+.login-container {
+  width: 300px;
+  margin: 5rem auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f7f7f7;
+  /* text-align: center; */
+}
+
+.login-container h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.login-container label {
+    display: block;
+}
+.login-container input {
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.login-container button {
+  padding: 0.6rem 1rem;
+  margin-top: 1rem;
+  background-color: #222;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.login-container button:hover {
+    background-color: rgb(195, 15, 15);
+}
+.error-msg {
+  color: red;
+  margin-bottom: 1rem;
+  text-align: center;
+}

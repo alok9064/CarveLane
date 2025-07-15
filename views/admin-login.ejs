@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/adminLogin.css" />
+</head>
+<body>
+    <div class="admin-login-heading">
+        <h1>Welcome to CarveLane! 🔒</h1>
+    </div>
+    <div class="login-container">
+    <h2>Admin Login</h2>
+    <% if (error) { %>
+      <p class="error-msg"><%= error %></p>
+    <% } %>
+    <form method="POST" action="/admin/login">
+      <label for="">Username:</label>
+      <input type="text" name="username" placeholder="Username" required />
+
+      <label for="">Password:</label>
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</body>
+</html>

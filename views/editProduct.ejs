@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Product - Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/editProduct.css">
+</head>
+<body>
+  <%- include("partials/navbar") %>
+
+  <div class="edit-product-container">
+    <h1>Edit Product</h1>
+
+    <form method="POST" action="/admin/edit-product/<%= product.id %>" enctype="multipart/form-data">
+      <label for="name">Product Name</label>
+      <input type="text" id="name" name="name" value="<%= product.name %>" required />
+
+      <label for="price">Price (₹)</label>
+      <input type="text" id="price" name="price" value="<%= product.price %>" required />
+      
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="">Select Category</option>
+        <% categories.forEach (c => { %>
+            <option value="<%= c.name %>" <%= product && product.category === c.name ? 'selected' : '' %>>
+                <%= c.name %>
+            </option>
+        <% }) %>
+        <option value="__custom__">Add New Category</option>
+      </select>
+
+      <div id="custom-category-wrapper" style="display: none;">
+        <label for="customCategory">New Category</label>
+        <input type="text" id="customCategory" name="customCategory" placeholder="Enter new category name" />
+      </div>
+
+      <label for="image">Change Image</label>
+      <input type="file" id="image" name="image" accept="image/*" />
+
+      <input type="hidden" name="currentImage" value="<%= product.image_url %>" />
+
+      <% if (product.image_url) { %>
+        <p>Current Image:</p>
+        <div class="edit-product-img-box">
+            <img src="<%= product.image_url %>" alt="Product Image" class="product-preview-image" />
+        </div>
+      <% } %>
+
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4" required><%= product.description %></textarea>
+
+      <button type="submit">Update Product</button>
+    </form>
+  </div>
+  <script>
+    //Adding new Category script
+    const categorySelect = document.getElementById('category');
+    const customWrapper = document.getElementById('custom-category-wrapper');
+
+    categorySelect.addEventListener('change', () => {
+        if(categorySelect.value === '__custom__') {
+            customWrapper.style.display = 'block';
+        } else {
+            customWrapper.style.display = 'none';
+        }
+    });
+  </script>
+</body>
+</html>

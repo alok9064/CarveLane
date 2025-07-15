@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Placed | CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/orderSuccess.css">
+</head>
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="order-success-container">
+  <div class="order-success-card">
+    <h1>🎉 Thank You!</h1>
+    <p>Your order has been placed successfully.</p>
+
+    <div class="order-details">
+      <p><strong>Order ID:</strong> <%= order.id %></p>
+      <p><strong>Total Amount:</strong> ₹<%= order.total_amount %></p>
+      <p><strong>Status:</strong> <%= order.status %></p>
+      <p><strong>Placed On:</strong> <%= new Date(order.created_at).toLocaleString() %></p>
+    </div>
+
+    <div class="order-success-actions">
+      <a href="/profile?section=order-history" class="btn">View My Orders</a>
+      <a href="/products" class="btn secondary">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

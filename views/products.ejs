@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CarveLane - Products</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/products.css">
+</head>
+<body>
+
+  <%- include("partials/navbar") %>
+
+  <div class="products-container">
+    
+    <section class="products-header">
+      <h1 class="products-title">All Products</h1>
+
+      <div class="products-search-bar">
+        <input type="text" placeholder="Search..." class="products-search-input">
+        <select class="products-filter-select">
+          <option value="">All Categories</option>
+          <option value="wood">Wood</option>
+          <option value="acrylic">Acrylic</option>
+          <option value="led">LED</option>
+        </select>
+        <button class="products-search-button">Search</button>
+      </div>
+    </section>
+
+    <section class="products-grid">
+        <% products.forEach(product => { %>
+            <a href="/products/<%= product.id %>" class="product-card-link">
+                <div class="product-card">
+                    <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image">
+                    <h3 class="product-name"><%= product.name %></h3>
+                    <p class="product-price">₹<%= product.price %></p>
+                    <button class="product-btn">View Details</button>
+                </div>
+            </a>
+        <% }) %>
+    </section>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<meta charset="UTF-8">
+<title>Order Details | CarveLane Admin</title><!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/adminNavbar.css">
+  <link rel="stylesheet" href="/css/adminOrderDetail.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<%- include("../partials/adminNavbar") %>
+
+<div class="admin-order-detail-container">
+  <h1>Order #<%= order.id %> Details</h1>
+
+  <div class="order-info-box">
+    <p><strong>Customer:</strong> <%= order.customer_name %></p>
+
+    <p><strong>Status:</strong>
+      <span class="badge status-<%= order.status.toLowerCase().replace(/ /g, '-') %>">
+        <%= order.status %>
+      </span>
+    </p>
+
+    <p><strong>Order Date:</strong> <%= new Date(order.order_date).toLocaleString() %></p>
+    <p><strong>Total Amount:</strong> ₹<%= order.total_amount %></p>
+    <p><strong>Payment Status:</strong> <%= order.payment_status %></p>
+    <p><strong>Shipping Address:</strong> <br>
+      <%= order.address.full_name %>, <%= order.address.address_line1 %>,
+      <% if (order.address.address_line2) { %> <%= order.address.address_line2 %>, <% } %>
+      <%= order.address.city %>, <%= order.address.state %> - <%= order.address.postal_code %>,
+      <%= order.address.country %>
+    </p>
+  </div>
+
+  <div class="order-items-box">
+    <h2>Ordered Items</h2>
+    <table class="order-items-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Customization</th>
+          <th>Custom Image</th>
+          <th>WhatsApp No.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(item => { %>
+          <tr>
+            <td><a href="/products/<%= item.product_id %>"><%= item.product_name %></a></td>
+            <td><%= item.quantity %></td>
+            
+            <% if (!item.use_default) { %>
+              <td>
+              <p><%= item.customization_text || '-' %></p>
+              </td>
+
+              <td style="text-align: center;">
+                <% if (item.image_path) { %>
+                  
+                  <a href="<%= item.image_path %>" target="_blank" ><i class="fa-solid fa-eye"></i></a>
+                  <br>
+                  <a href="" download="<%= item.image_path %>" class="custom-img-download">Download</a>
+                <% } %>
+              </td>
+
+              <td style="text-align: center;">
+                <p><%= item.whatsapp ? item.whatsapp : '' %></p>
+              </td>
+
+            <% } else { %>
+              <td style="text-align: center;"><em>Default</em></td>
+              <td><p>NA</p></td>
+              <td><p>NA</p></td>
+              
+            <% } %>
+
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

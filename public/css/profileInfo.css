@@ -1,0 +1,103 @@
+.profile-section {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.personal-info-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.personal-info-head h2 {
+  color: #333;
+}
+
+.profile-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-section label {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.profile-section input,
+.profile-section select,
+.profile-section textarea {
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.profile-section textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.profile-section button {
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+button.edit-btn {
+  background-color: #222;
+  color: #fff;
+}
+
+button.save-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+button.cancel-btn {
+  background-color: #dc3545;
+  color: #fff;
+}
+.profile-btn-group .hidden {
+  display: none;
+}
+
+/* Hide inactive sections */
+.profile-section.hidden {
+  display: none;
+}
+
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .profile-container {
+    flex-direction: column;
+  }
+
+  .profile-sidebar {
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .sidebar-menu li {
+    display: inline-block;
+    margin: 0.5rem;
+  }
+  .profile-picture {
+    height: 80px;
+    width: 80px;
+  }
+}

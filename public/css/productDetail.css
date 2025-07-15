@@ -1,0 +1,212 @@
+.product-detail-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.product-detail-card {
+  display: flex;
+  gap: 2rem;
+  max-width: 900px;
+  width: 100%;
+  border: 1px solid #ddd;
+  padding: 2rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.product-detail-image {
+  width: 50%;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.product-detail-info {
+  flex: 1;
+}
+
+.product-detail-name {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.product-detail-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.product-detail-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.product-detail-btn {
+  background-color: #222;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.product-detail-back {
+  color: #222;
+  margin-bottom: 1rem;
+  /* text-decoration: underline; */
+}
+.product-detail-back:hover {
+  color: #8d0505;
+  margin-bottom: 1rem;
+  /* text-decoration: underline; */
+}
+
+
+.product-detail-description {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: pre-line;
+  margin-bottom: 1.5rem;
+}
+.read-desc {
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    text-decoration: underline;
+}
+/* Related Product section */
+
+.related-products-section {
+  margin-top: 4rem;
+  padding: 1rem 2rem;
+}
+
+.related-products-title {
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}
+
+.related-products-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: flex-start;
+}
+
+.related-product-card {
+  flex: 1 1 220px;
+  max-width: 250px;
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+
+  margin-bottom: 1.2rem;
+}
+
+.related-product-card:hover {
+  transform: translateY(-5px);
+}
+
+.related-product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.8rem;
+}
+
+.related-product-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.related-product-price {
+  font-size: 1rem;
+  color: #444;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-control button {
+  padding: 5px 12px;
+  font-size: 1rem;
+  border: none;
+  background-color: #333;
+  color: white;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}

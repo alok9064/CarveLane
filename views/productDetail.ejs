@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.name %> | CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/productDetail.css">
+</head>
+<body>
+
+  <%- include("partials/navbar") %>
+
+  <div class="product-detail-container">
+    <div class="product-detail-card">
+      <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-detail-image">
+
+      <div class="product-detail-info">
+        <h1 class="product-detail-name"><%= product.name %></h1>
+        <p class="product-detail-price">₹<%= product.price %></p>
+        <div class="product-detail-actions">
+          <button class="product-detail-btn" onclick="openCustomizationModal('cart')">Add to Cart</button>
+          <button class="product-detail-btn buy-now-btn" onclick="openCustomizationModal('buy-now')">Buy Now</button>
+
+          <!-- Customization Modal -->
+          <div id="customization-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+              <h2>Customize Your Product</h2>
+              <form id="customization-form" method="POST" enctype="multipart/form-data" data-product-id="<%= product.id %>">
+
+                <div class="form-group">
+                  <input type="hidden" name="actionType" id="actionTypeInput" value="cart">
+                </div>
+                <input type="hidden" name="product_id" value="<%= product.id %>">
+
+                <div class="form-group">
+                  <label><input type="checkbox" id="default-check" name="default"> Use Default (No Customization)</label>
+                </div>
+
+                <div class="form-group">
+                  <label for="customText">Enter Customizable Description:</label>
+                  <input type="text" id="customText" name="customization_text" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="customImage">Upload Image:</label>
+                  <input type="file" id="customImage" name="customImage" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                  <label for="whatsapp">Provide WhatsApp Number <span style="font-weight: normal;">(optional)</span>:</label>
+                  <input type="text" id="whatsapp" name="whatsapp" placeholder="e.g. 9876543210">
+                </div>
+
+                <div class="form-group quantity-control">
+                  <label>Quantity:</label>
+                  <button type="button" onclick="decreaseQty()">−</button>
+                  <input type="number" id="modalQuantity" name="quantity" value="1" min="1" readonly>
+                  <button type="button" onclick="increaseQty()">+</button>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" id="cart-btn" class="product-detail-btn">Add to Cart</button>
+                  <button type="submit" id="buy-btn" class="product-detail-btn hidden">Buy Now</button>
+                  <button type="button" class="modal-close-btn" onclick="closeCustomizationForm()">Cancel</button>
+                </div>
+
+              
+              </form>
+            </div>
+          </div>
+
+        </div>
+        <a href="/products" class="product-detail-back">← Back to Products</a>
+
+       
+
+      </div>
+    </div>
+    <h3>Product Description:</h3>
+    <span id="short-desc">
+        <p class="product-detail-description"><%= product.description.substring(0, 200) %> <button onclick="toggleDesc(true)" class="read-desc">Read more</button>
+        </p>
+    </span>
+    <span id="full-desc" style="display: none;">
+        <p class="product-detail-description"><%= product.description %>
+            <button onclick="toggleDesc(false)" class="read-desc">Read less</button>
+        </p>
+    </span>
+    
+  </div>
+
+<% if (relatedProducts.length > 0) { %>
+  <section class="related-products-section">
+    <h2 class="related-products-title">You may also like</h2>
+    <div class="related-products-grid">
+      <% relatedProducts.forEach(item => { %>
+        <a href="/products/<%= item.id %>" class="related-product-card-link">
+          <div class="related-product-card">
+            <img src="<%= item.image_url %>" alt="<%= item.name %>" class="related-product-image">
+            <h3 class="related-product-name"><%= item.name %></h3>
+            <p class="related-product-price">₹<%= item.price %></p>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </section>
+<% } %>
+
+
+<script>
+  function toggleDesc(showFull) {
+      const shortDesc = document.getElementById('short-desc');
+      const fullDesc  = document.getElementById('full-desc');
+
+      if(showFull){
+          shortDesc.style.display = "none";
+          fullDesc.style.display = "block";
+      } else{
+          fullDesc.style.display = "none";
+          shortDesc.style.display = "block"
+      }
+  }
+    
+  //customisation form
+  function openCustomizationForm() {
+    document.getElementById("customization-modal").style.display = "flex";
+  }
+
+  function closeCustomizationForm() {
+    document.getElementById("customization-modal").style.display = "none";
+  }
+
+  function openCustomizationModal(mode) {
+  const form = document.getElementById('customization-form');
+  const actionInput = document.getElementById('actionTypeInput');
+  const productId = form.dataset.productId;
+
+  // Open modal
+  document.getElementById('customization-modal').style.display = 'flex';
+
+  // Set the action type
+  actionInput.value = mode; // 'cart' or 'buy-now'
+
+  // Set form action dynamically
+  if (mode === 'buy-now') {
+    form.action = '/buy-now/customize';
+    document.getElementById('cart-btn').classList.add('hidden');
+    document.getElementById('buy-btn').classList.remove('hidden');
+  } else if(mode === 'cart'){
+    form.action = `/cart/add/${productId}`;
+  }
+}
+
+
+
+  const defaultCheck = document.getElementById("default-check");
+  const customText = document.getElementById("customText");
+  const customImage = document.getElementById("customImage");
+  const whatsapp = document.getElementById("whatsapp");
+
+  defaultCheck.addEventListener("change", function () {
+    const disabled = this.checked;
+    customText.disabled = disabled;
+    customImage.disabled = disabled;
+    whatsapp.disabled = disabled;
+  });
+
+  function increaseQty() {
+    const input = document.getElementById("modalQuantity");
+    input.value = parseInt(input.value) + 1;
+  }
+
+  function decreaseQty() {
+    const input = document.getElementById("modalQuantity");
+    if (parseInt(input.value) > 1) {
+      input.value = parseInt(input.value) - 1;
+    }
+  }
+
+
+</script>
+
+</body>
+</html>

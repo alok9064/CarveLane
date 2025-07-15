@@ -1,0 +1,39 @@
+.admin-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #222;
+  color: white;
+  padding: 1rem 2rem;
+}
+
+.admin-navbar a {
+  color: white;
+  text-decoration: none;
+  margin-left: 1.2rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.admin-navbar a:hover {
+  color: #59ff00;
+}
+
+.admin-logo {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.logout-btn {
+  background: #ff4d4d;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.admin-navbar a.logout-btn:hover {
+  background: #52c614;
+  color: black;
+}
+
+

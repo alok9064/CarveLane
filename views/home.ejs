@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CarveLane - Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+
+  <%- include("partials/navbar") %>
+
+  <div class="home-container">
+    
+    <section class="home-hero">
+      <div class="home-hero-content">
+        <h1 class="home-title">Welcome to CarveLane</h1>
+        <p class="home-subtitle">Personalized & Laser-Cut Gifts Crafted Just for You</p>
+
+        <div class="home-search-bar">
+          <input type="text" placeholder="Search products..." class="home-search-input">
+          <select class="home-search-filter">
+            <option value="">All Categories</option>
+            <% categories.forEach(category => { %>
+                <option value="<%= category.name %>"><%= category.name %></option>
+            <% }); %>
+          </select>
+          <button class="home-search-button">Search</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-banner">
+        <div class="home-banner-carousel" id="bannerCarousel">
+            <img src="/images/banner1.jpg" alt="Banner 1" class="home-banner-image active">
+            <img src="/images/banner2.jpg" alt="Banner 2" class="home-banner-image">
+            <img src="/images/banner3.jpg" alt="Banner 3" class="home-banner-image">
+            <img src="/images/banner4.jpg" alt="Banner 4" class="home-banner-image">
+        </div>
+    </section>
+
+  </div>
+  <script src="/js/home.js"></script>
+
+</body>
+</html>

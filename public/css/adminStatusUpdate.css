@@ -1,0 +1,148 @@
+
+.status-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 15px;
+    
+    /* max-width: 400px; */
+}
+
+.status-form {
+    flex-grow: 1;
+}
+
+.status-form select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+
+select:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.lock-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #6c757d;
+    transition: all 0.2s;
+    padding: 5px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.lock-btn:hover {
+    background-color: #f0f0f0;
+    color: #495057;
+}
+
+.lock-btn.locked {
+    color: #4a90e2;
+}
+
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+}
+
+.confirmation-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirmation-box {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 400px;
+    width: 90%;
+    transform: translateY(-20px);
+    transition: transform 0.3s;
+}
+
+.confirmation-modal.active .confirmation-box {
+    transform: translateY(0);
+}
+
+.confirmation-title {
+    margin: 0 0 15px;
+    font-size: 18px;
+    color: #333;
+    text-align: left;
+}
+
+.confirmation-message {
+    margin-bottom: 25px;
+    color: #555;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.confirmation-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.confirmation-btn.cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.confirmation-btn.cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.confirmation-btn.confirm {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.confirmation-btn.confirm:hover {
+    background-color: #3a7bc8;
+}
+
+.status-form select option:disabled {
+    color: #ccc;
+    background-color: #f8f8f8;
+}
+
+.status-form select option[disabled]:checked {
+    color: #666;
+    font-weight: bold;
+}

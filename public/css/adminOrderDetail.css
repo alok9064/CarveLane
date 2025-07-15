@@ -1,0 +1,130 @@
+.admin-order-detail-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.admin-order-detail-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.order-info-box {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.order-info-box strong {
+  font-weight: 600;
+  color: #222;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  /* margin-left: 8px; */
+}
+
+
+.status-form select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+
+select:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.status-pending { background-color: #ffc107; }
+.status-accepted { background-color: #0d6efd; }
+.status-shipped { background-color: #17a2b8; }
+.status-out-for-delivery { background-color: #6610f2; }
+.status-delivered { background-color: #28a745; }
+.status-cancelled { background-color: #dc3545; }
+
+.order-items-box h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-items-table th,
+.order-items-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 15px;
+}
+
+.order-items-table th {
+  background-color: #f3f3f3;
+  font-weight: 600;
+}
+
+.order-items-table td a {
+  color: #007bff;
+  /* padding: 1.5rem; */
+  /* text-decoration: underline; */
+}
+
+
+@media (max-width: 768px) {
+  .admin-order-detail-container {
+    padding: 15px;
+  }
+
+  .order-items-table, .order-items-table thead, .order-items-table tbody, .order-items-table th, .order-items-table td, .order-items-table tr {
+    display: block;
+  }
+
+  .order-items-table thead {
+    display: none;
+  }
+
+  .order-items-table tr {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+  }
+
+  .order-items-table td {
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+    border: none;
+  }
+
+  .order-items-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 45%;
+    padding-right: 10px;
+    font-weight: bold;
+    text-align: left;
+  }
+}

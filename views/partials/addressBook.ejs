@@ -1,0 +1,87 @@
+      <section id="address-book" class="profile-section hidden">
+        <h2>Address Book</h2>
+
+        <!-- Add Address Button -->
+        <button id="add-address-btn" class="add-btn">+ Add New Address</button>
+
+        <!-- Address List -->
+        <div class="address-list">
+          <% if (addresses.length === 0) { %>
+            <p>No addresses added yet.</p>
+          <% } else { %>
+            <% addresses.forEach(address => { %>
+              <div class="address-card">
+                <div class="address-header">
+                  <span class="address-type"><%= address.address_type %> Address</span>
+                  <% if (address.is_default) { %>
+                    <span class="default-badge">Default</span>
+                  <% } %>
+                </div>
+                <p><strong><%= address.full_name %></strong></p>
+                <p>
+                  <%= address.address_line1 %><br />
+                  <%- address.address_line2 ? address.address_line2 + '<br />' : '' %>
+                  <%= address.city %>, <%= address.state %> - <%= address.postal_code %><br />
+                  <%= address.country %>
+                </p>
+                <div class="address-actions">
+                  <button class="edit-address-btn" data-id="<%= address.id %>" data-address='<%= JSON.stringify(address) %>'>Edit</button>
+                  <button class="delete-address-btn" data-id="<%= address.id %>">Delete</button>
+                  <% if (!address.is_default) { %>
+                    <button class="set-default-btn" data-id="<%= address.id %>">Set as Default</button>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+
+        <!-- Address Form Modal -->
+        <div class="address-modal hidden" id="address-modal">
+          <form id="address-form">
+            <h3 id="address-form-title">Add Address</h3>
+
+            <input type="hidden" name="id" id="address-id" />
+
+            <label>Address Type</label>
+            <select name="address_type" required>
+              <option value="shipping">Shipping</option>
+              <option value="billing">Billing</option>
+            </select>
+
+            <label>Full Name</label>
+            <input type="text" name="full_name" required />
+
+            <label>Address Line 1</label>
+            <input type="text" name="address_line1" required />
+
+            <label>Address Line 2</label>
+            <input type="text" name="address_line2" />
+
+            <label>City</label>
+            <input type="text" name="city" required />
+
+            <label>State</label>
+            <input type="text" name="state" required />
+
+            <label>Postal Code</label>
+            <input type="text" name="postal_code" required />
+
+            <label>Country</label>
+            <input type="text" name="country" required />
+
+            <div class="default-checkbox">
+                <input type="checkbox" name="is_default" />
+                <label>Set as default </label>
+                
+            </div>
+            
+
+            <div class="modal-btn-group">
+              <button type="submit" class="save-btn">Save</button>
+              <button type="button" id="cancel-address-btn" class="cancel-btn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+

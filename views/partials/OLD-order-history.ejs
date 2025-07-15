@@ -1,0 +1,49 @@
+<section id="order-history" class="profile-section hidden">
+  <h2>Order History</h2>
+
+  <% if (orders && orders.length > 0) { %>
+    <div class="order-history-list">
+      <% orders.forEach(order => { %>
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <strong>Order ID:</strong> <%= order.id %><br />
+              <strong>Status:</strong> <%= order.status %><br />
+              <strong>Date:</strong> <%= new Date(order.order_date).toLocaleDateString() %><br />
+              <strong>Total:</strong> ₹<%= order.total_amount %>
+            </div>
+            <div>
+              <strong>Shipping:</strong><br />
+              <%= order.shipping_address?.full_name %><br />
+              <%= order.shipping_address?.address_line1 %><br />
+              <%- order.shipping_address?.address_line2 ? order.shipping_address.address_line2 + '<br />' : '' %>
+              <%= order.shipping_address?.city %>, <%= order.shipping_address?.state %> - <%= order.shipping_address?.postal_code %><br />
+              <%= order.shipping_address?.country %>
+            </div>
+          </div>
+
+          <div class="order-items">
+            <% order.items.forEach(item => { %>
+              <div class="order-item">
+                <img src="<%= item.image_url || '/images/default-product.jpg' %>" alt="<%= item.product_name %>" />
+                <div>
+                  <strong><%= item.product_name %></strong><br />
+                  Quantity: <%= item.quantity %><br />
+                  Price: ₹<%= item.unit_price %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="order-actions">
+            <a href="/order/<%= order.id %>" class="view-btn">View Details</a>
+            <a href="/orders/<%= order.id %>/invoice" class="download-btn" target="_blank">Download Invoice</a>
+            <a href="/order/<%= order.id %>/return" class="return-btn">Request Return</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <p>You have no orders yet.</p>
+  <% } %>
+</section>

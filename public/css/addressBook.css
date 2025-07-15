@@ -1,0 +1,198 @@
+/* ===== Address Book ===== */
+
+#address-book .add-btn {
+  padding: 0.5rem 1rem;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+#address-book h2 {
+    margin-bottom: 1rem;
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.address-card {
+  background-color: #fdfdfd;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.address-type {
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #333;
+}
+
+.default-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+}
+
+/* Actions */
+.address-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.address-actions button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-address-btn {
+  background-color: #007bff;
+  color: white;
+}
+.delete-address-btn {
+  background-color: #dc3545;
+  color: white;
+}
+.set-default-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* ===== Address Modal Form ===== */
+.address-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto; /* ✅ allow modal itself to scroll if needed */
+  padding: 2rem;   /* optional, for spacing on small screens */
+}
+
+.address-modal form {
+  background-color: white;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-height: 90vh;         /* ✅ don't go beyond screen height */
+  overflow-y: auto;         /* ✅ scroll form content if long */
+  scrollbar-width: thin;            /* Firefox */
+  scrollbar-color: #ccc transparent; /* Firefox */
+}
+/* Chrome/Edge/Safari scrollbar styling */
+.address-modal form::-webkit-scrollbar {
+  width: 6px;
+}
+.address-modal form::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+.address-modal form::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.address-modal label {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.address-modal input,
+.address-modal select {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.default-checkbox {
+    display: flex;
+    /* justify-content: flex-start; */
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+.default-checkbox input[type="checkbox"] {
+  transform: scale(1.1);
+  accent-color: #222; /* modern browsers only */
+  
+}
+
+.modal-btn-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Hide modal by default */
+.address-modal.hidden {
+  display: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .address-card {
+    font-size: 0.95rem;
+  }
+
+  .address-actions {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .address-modal form {
+    padding: 1.5rem;
+  }
+}

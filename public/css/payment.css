@@ -1,0 +1,88 @@
+/* ===== Payment Page Styling ===== */
+
+.payment-wrapper {
+  max-width: 700px;
+  margin: 2rem auto;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.payment-wrapper h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+/* Product Summary */
+.product-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.product-summary img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.product-details {
+  flex: 1;
+}
+
+.product-details h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.product-details p {
+  margin: 0.5rem 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* Payment Button */
+.pay-btn {
+  display: block;
+  width: 100%;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 0.9rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  margin-top: 1rem;
+}
+
+.pay-btn:hover {
+  background-color: #135ec4;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .product-summary {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .product-summary img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .product-details {
+    width: 100%;
+  }
+}

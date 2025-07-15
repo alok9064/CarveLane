@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Cart | CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/cart.css">
+</head>
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="cart-container">
+  <h1>Your Cart</h1>
+
+  <% if (cartItems.length === 0) { %>
+    <p class="empty-cart-msg">Your cart is empty. <a href="/products">Browse products →</a></p>
+  <% } else { %>
+    <div class="cart-grid">
+      <% cartItems.forEach(item => { %>
+        <div class="cart-item-card">
+          <img src="<%= item.image_url %>" alt="<%= item.name %>" class="cart-item-img">
+
+          <div class="cart-item-info">
+            <h3><%= item.name %></h3>
+            <p class="price">₹<%= item.price %> x <%= item.quantity %> = ₹<%= item.price * item.quantity %></p>
+
+            <% if (!item.use_default) { %>
+              <div class="custom-info">
+                <% if (item.customization_text) { %>
+                  <p><strong>Custom Text:</strong> <%= item.customization_text %></p>
+                <% } %>
+                <% if (item.image_path) { %>
+                  <p><strong>Custom Image:</strong><br>
+                    <img src="<%= item.image_path %>" alt="Custom Upload" class="custom-image">
+                  </p>
+                <% } %>
+                <% if (item.whatsapp) { %>
+                  <p><strong>WhatsApp:</strong> <%= item.whatsapp %></p>
+                <% } %>
+              </div>
+            <% } else { %>
+              <p class="default-tag">Customization: Default</p>
+            <% } %>
+
+            <form method="POST" action="/cart/update/<%= item.id %>" class="quantity-form">
+              <button type="submit" name="action" value="decrease">−</button>
+              <span><%= item.quantity %></span>
+              <button type="submit" name="action" value="increase">+</button>
+            </form>
+
+            <form method="POST" action="/cart/remove/<%= item.id %>">
+              <button type="submit" class="remove-btn">Remove</button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="cart-summary">
+      <h3>Total: ₹<%= totalPrice %></h3>
+      <form action="/checkout" method="GET">
+        <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+      </form>
+    </div>
+  <% } %>
+</div>
+
+</body>
+</html>

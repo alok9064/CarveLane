@@ -1,0 +1,256 @@
+/* Loader Styles */
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #222;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-container p {
+  color: #222;
+  font-weight: 500;
+}
+
+
+.signup-main-container {
+  display: flex;
+  max-width: 900px;
+  margin: 3rem auto;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.signup-left-pane {
+  flex: 1;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-left-pane img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.signup-right-pane {
+  flex: 1;
+  padding: 2rem;
+}
+
+/* STEP 1 */
+.signup-step {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.signup-step.active {
+  display: block;
+  opacity: 1;
+}
+
+.signup-right-pane h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.signup-right-pane label {
+  display: block;
+  font-weight: 500;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.signup-right-pane input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.step1-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#send-otp-btn {
+  background-color: #222;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.google-signup-btn {
+  background-color: #4285F4;
+  color: white;
+  padding: 0.6rem 1rem;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.or-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.error-message {
+  color: red;
+  margin-top: 1rem;
+}
+
+
+/* STEP 2 */
+
+.otp-actions {
+  margin-top: 1.5rem;
+}
+
+.otp-actions button {
+  background-color: #222;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.resend-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+#resend-btn {
+  color: #007bff;
+  cursor: not-allowed;
+}
+
+#resend-btn.enabled {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+/* STEP 3 */
+/* STEP 3 */
+#step3-form-section input {
+  margin-bottom: 1rem;
+}
+
+#show-password-toggle {
+  background: transparent;
+  border: none;
+  color: #007bff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0;
+  display: block;
+}
+
+#signup-submit {
+  background-color: #222;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#step3-message {
+  color: red;
+  margin-top: 1rem;
+}
+
+/* Success Message Styles */
+.success-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+.success-message.fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+.success-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkmark {
+    width: 30px;
+    height: 30px;
+}
+
+.checkmark__circle {
+    stroke: #fff;
+    stroke-width: 2;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark__check {
+    transform-origin: 50% 50%;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes slideIn {
+    from { top: -100px; opacity: 0; }
+    to { top: 20px; opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}

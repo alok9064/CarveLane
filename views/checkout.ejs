@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout | CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/checkout.css">
+</head>
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="checkout-container">
+  <h1>Checkout</h1>
+
+  <div class="checkout-sections">
+
+    <!-- 🛒 Order Summary -->
+    <div class="checkout-cart">
+      <h2>Your Items</h2>
+
+      <% if (isBuyNow) { %>
+        <% const item = cartItems[0]; %>
+        <div class="checkout-item">
+          <img src="<%= item.image_url || item.image_path%>" alt="<%= item.product_name %>">
+          <div>
+            <p><strong><%= item.product_name %></strong> × <%= item.quantity %></p>
+            <p>₹<%= item.price %> each</p>
+            <% if (!item.use_default && item.customization_text) { %>
+              <p><em>Custom:</em> <%= item.customization_text %></p>
+            <% } else { %>
+              <p><em>Customization:</em> Default</p>
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <% cartItems.forEach(item => { %>
+          <div class="checkout-item">
+            <img src="<%= item.image_url %>" alt="<%= item.name %>">
+            <div>
+              <p><strong><%= item.name %></strong> × <%= item.quantity %></p>
+              <p>₹<%= item.price %> each</p>
+              <% if (!item.use_default && item.customization_text) { %>
+                <p><em>Custom:</em> <%= item.customization_text %></p>
+              <% } else { %>
+                <p><em>Customization:</em> Default</p>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      <% } %>
+
+      <div class="checkout-total">
+        <strong>Total: ₹<%= totalPrice %></strong>
+      </div>
+    </div>
+
+    <!-- 📦 Delivery Address -->
+    <div class="checkout-address">
+      <h2>Select Delivery Address</h2>
+      <% if (addresses.length === 0) { %>
+        <p>No address saved. Please <a href="/profile?section=address-book">add an Address →</a>.</p>
+      <% } else { %>
+        <form method="POST" id="payment-form">
+          <% addresses.forEach(address => { %>
+              <label class="address-option">
+                <input type="radio" name="address_id" value="<%= address.id %>" <%= address.is_default ? 'checked' : '' %> required>
+                <div class="address-box">
+                  <strong><%= address.full_name %></strong><br>
+                  <%= address.address_line1 %><br>
+                  <% if (address.address_line2) { %>
+                    <%= address.address_line2 %><br>
+                  <% } %>
+                  <%= address.city %>, <%= address.state %> - <%= address.postal_code %><br>
+                  <%= address.country %>
+                </div>
+              </label>
+          <% }) %>
+
+          <div class="checkout-actions">
+            <button type="button" id="pay-now-btn" class="place-order-btn">Pay Now</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+
+  </div>
+</div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  document.getElementById("pay-now-btn").addEventListener("click", async () => {
+    const form = document.getElementById("payment-form");
+    const addressId = form.address_id.value;
+
+    try {
+      const res = await fetch("/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await res.json();
+
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: "INR",
+        name: "CarveLane: By S.K. Art",
+        description: "Payment for your order",
+        order_id: data.orderId,
+        handler: function (response) {
+          // On success, post to /place-order with payment details
+          const payload = {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            address_id: addressId
+          };
+
+          fetch("/place-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          })
+          .then(res => res.redirected ? window.location.href = res.url : res.json())
+          .catch(err => alert("Error placing order after payment!"));
+        },
+        theme: {
+          color: "#4CAF50"
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Razorpay error:", err);
+      alert("Payment initialization failed.");
+    }
+  });
+</script>
+
+
+</body>
+</html>

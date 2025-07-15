@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Payment - CarveLane</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/payment.css">
+</head>
+<body>
+  <div class="payment-wrapper">
+    <h2>Processing Payment for <%= product.name %></h2>
+    <p>Amount: ₹<%= product.price %></p>
+    <p>Click the button below to complete your purchase.</p>
+    <button id="rzp-button" class="pay-btn">Pay Now</button>
+  </div>
+
+  <script>
+    const options = {
+      key: "<%= razorpayKey %>",
+      amount: "<%= razorpayOrder.amount %>",
+      currency: "INR",
+      name: "CarveLane by S.K. Art",
+      description: "Purchase - <%= product.name %>",
+      image: "/images/logo.png", // optional
+      order_id: "<%= razorpayOrder.id %>",
+      handler: function (response) {
+        window.location.href = `/payment/success?order_id=${response.razorpay_order_id}&payment_id=${response.razorpay_payment_id}`;
+      },
+      prefill: {
+        name: "<%= user.name %>",
+        email: "<%= user.email %>"
+      },
+      notes: {
+        shipping_address_id: "<%= razorpayOrder.notes.shippingAddressId %>"
+      },
+      theme: {
+        color: "#222"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    document.getElementById('rzp-button').onclick = function(e) {
+      rzp.open();
+      e.preventDefault();
+    };
+  </script>
+</body>
+</html>

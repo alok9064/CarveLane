@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/adminNavbar.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <%- include("partials/adminNavbar") %>
+
+  <div class="admin-panel-container">
+    <h1>Admin Dashboard</h1>
+
+    <div class="admin-actions">
+      <a href="/admin/add-product" class="admin-action-btn">➕ Add Product</a>
+      <a href="/admin/products" class="admin-action-btn">📋 Manage Products</a>
+      <a href="/admin/orders" class="admin-action-btn">📦 Manage Orders</a> <!-- ✅ New Button -->
+    </div>
+  </div>
+</body>
+</html>

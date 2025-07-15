@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Profile - CarveLane</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/profileInfo.css">
+  <link rel="stylesheet" href="/css/addressBook.css"/>
+  <link rel="stylesheet" href="/css/order-history.css">
+</head>
+<body>
+  <%- include("partials/navbar") %>
+
+  <div class="profile-container">
+    <!-- Sidebar -->
+    <aside class="profile-sidebar">
+      <div class="user-greeting">
+        <img src="<%= user.profile_picture || '/images/default-profile.jpg'%>" alt="Profile Picture" class="profile-picture" />
+        <h3>Hi, <%= user.name %>!</h3>
+      </div>
+      <ul class="sidebar-menu">
+        <li data-target="personal-info" class="active">Personal Info</li>
+        <li data-target="address-book" class="my-address">Address Book</li>
+        <li data-target="order-history" class="my-order">Order History</li>
+        <li data-target="cart">Shopping Cart</li>
+        <!-- <div > -->
+          <form action="/logout" method="POST" class="profile-logout-div">
+            <button type="submit" class="profile-logout">Logout</button>
+          </form>
+        <!-- </div> -->
+      </ul>
+      
+    </aside>
+
+    <!-- Main Content -->
+    <main class="profile-main">
+      <!-- Section: Personal Info -->
+      <%- include("partials/personalInfo") %>
+
+      <!-- Section: Address Book -->
+      <%- include("partials/addressBook") %>
+
+      <!-- Section: Order History -->
+      <%- include("partials/order-history") %>
+
+      <!-- Section: Cart -->
+      <section id="cart" class="profile-section hidden">
+        <h2>Shopping Cart</h2>
+        <a href="/cart" class="go-to-cart">Go to My Cart</a>
+      </section>
+    </main>
+  </div>
+  <% if (typeof defaultSection !== 'undefined') { %>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const defaultSection = "<%= defaultSection %>";
+        const sidebarItem = document.querySelector(`.sidebar-menu li[data-target="${defaultSection}"]`);
+        if (sidebarItem) sidebarItem.click();
+      });
+    </script>
+  <% } %>
+  <script src="/js/profile.js"></script>
+  <script src="/js/addressBook.js"></script
+</body>
+</html>

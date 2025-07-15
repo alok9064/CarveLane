@@ -1,0 +1,55 @@
+<div id="order-history" class="profile-section hidden" >
+  <h2>🧾 Order History</h2>
+
+  <% if (orders.length === 0) { %>
+    <p>You haven't placed any orders yet.</p>
+  <% } else { %>
+    <% orders.forEach(order => { %>
+      <div class="order-card">
+        <div>
+          <a href="/products/<%= order.product_id %>">
+          </a>
+        </div>
+        <div class="order-header">
+          <p><strong>Order ID:</strong> <%= order.id %></p>
+          <p><strong>Status:</strong> <%= order.status %></p>
+          <p><strong>Total:</strong> ₹<%= order.total_amount %></p>
+          <p><strong>Date:</strong> <%= new Date(order.created_at).toLocaleString() %></p>
+        </div>
+
+        <div class="order-items">
+          <% order.items.forEach(item => { %>
+            <div class="order-item">
+              <p><strong>Product ID:</strong> <%= item.product_id %></p>
+              <a href="/products/<%= item.product_id %>">
+                <img src="<%= item.image_url %>" alt="Product image" class="custom-order-img" >
+              </a>
+              
+              <% if (!item.use_default) { %>
+                
+                <% if (item.image_path) { %>
+                  <img src="<%= item.image_path %>" alt="Custom" class="custom-order-img" title="Custom Image">
+                <% } %>
+                <p>🛠 Custom: <%= item.customization_text || 'NA' %></p>
+                <p>📱 WhatsApp: <%= item.whatsapp || 'NA' %></p>
+              <% } else { %>
+                <p>Default customization</p>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="order-actions">
+          <form action="/download-invoice/<%= order.id %>" method="GET">
+            <button type="submit" class="btn">Download Invoice</button>
+          </form>
+          <form action="/request-return/<%= order.id %>" method="POST">
+            <button type="submit" class="btn secondary">Request Return</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+
