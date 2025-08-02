@@ -1,0 +1,24 @@
+<!-- container
+<div class="status-container">
+    <form action="/admin/orders/<%= order.id %>/status" method="POST" class="status-form" id="statusForm">
+        <select name="status" onchange="this.form.submit()">
+        <% ['Pending', 'Accepted', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].forEach(s => { %>
+            <option value="<%= s %>" <%= s === order.status ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+        </select>
+    </form>
+    <button class="lock-btn" id="lockBtn" title="Click to confirm status change">
+        <i class="fas fa-lock-open"></i>
+    </button>
+</div>
+
+<div class="confirmation-modal" id="confirmationModal">
+    <div class="confirmation-box">
+        <h3 class="confirmation-title">Confirm Status Update</h3>
+        <p class="confirmation-message">Are you sure you want to update the order status to "<span id="statusValue"></span>"?</p>
+        <div class="confirmation-buttons">
+            <button class="confirmation-btn cancel" id="cancelBtn">Cancel</button>
+            <button class="confirmation-btn confirm" id="confirmBtn">Yes, Update</button>
+        </div>
+    </div>
+</div> -->

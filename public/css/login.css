@@ -1,32 +1,87 @@
+.body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .login-container {
-  max-width: 400px;
-  margin: 4rem auto;
+  display: flex;
+  max-width: 800px;
+  margin: 3rem auto;
+  background: white;
+  /* border-radius: 10px; */
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-left-pane {
+  flex: 1;
+  max-width: 50%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-right-pane {
+  flex: 1;
+  max-width: 50%;
+  /* margin: 4rem auto; */
   padding: 2rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  /* background: #fff; */
+  /* border-radius: 8px; */
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); */
   text-align: center;
 }
 
-.login-container h1 {
+.login-right-pane h1 {
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
+  color: #034C53;
 }
 
-.login-container input {
+.login-right-pane input {
   width: 100%;
   padding: 0.8rem;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   border: 1px solid #ccc;
-  border-radius: 4px;
+  /* border-radius: 4px; */
+}
+.login-email {
+  margin-bottom: 1rem;
+}
+.login-forgot-pass {
+  text-align: left;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
-.login-container button {
+.login-right-pane button {
   width: 100%;
   padding: 0.8rem;
-  background-color: #222;
+  background-color: #034C53;
   color: white;
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.login-right-pane a {
+  color: rgb(13, 64, 116);
+}
+
+@media (max-width: 1024px) {
+  .login-container {
+  display: flex;
+  max-width: 400px;
+  margin: 3rem auto;
+  box-shadow: 0 4px 12px rgba(67, 67, 67, 0.1);
+
+}
+  .login-left-pane {
+    display: none;
+  }
+  .login-right-pane {
+    max-width: 400px;
+  }
 }

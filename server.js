@@ -1,36 +1,28 @@
 import express from 'express';
-import pg from 'pg';
+import pool  from './middleware/db.js';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import PDFDocument from 'pdfkit';
-import moment from 'moment';
 import Razorpay from 'razorpay';
 import crypto from "crypto";
+import contactRoutes from './routes/contact.js';
 import { requireLogin } from './middleware/auth.js';
 import { upload } from './middleware/upload.js'; // adjust path as needed
-
+import { uploadReviewImage } from "./middleware/uploadReviewImage.js";
+import adminRouter from './routes/adminRoutes.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-const { Pool } = pg;
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-
 // Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,       // Set in .env
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
-
-
 
 app.set('view engine', 'ejs');
 app.use(express.json());
@@ -49,7 +41,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 //Configure Nodemailer for OTP
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -59,79 +50,294 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+//Use admin routes 
+app.use('/admin', adminRouter);
+
+app.get('/admin-login', (req, res) => {
+  res.redirect('admin/login');
+});
+
+// CONTACT MAIL
+app.use(contactRoutes);
 
 // Sample route
 app.get('/', async (req, res) => {
   try {
-  
+    const successMessage = req.session.successMessage;
+    req.session.successMessage = null;
 
-    // Categories are always needed
-    const categoryResult = await pool.query('SELECT name FROM categories ORDER BY name ASC');
-    const categories = categoryResult.rows;
+    // categories
+    const { rows: categories } = await pool.query(
+      'SELECT name FROM categories ORDER BY name ASC'
+    );
 
-    // If user is logged in, fetch profile picture
+    // top products with rating summary
+    const topProdResult = await pool.query(`
+      SELECT
+        p.*,
+        COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+        COALESCE(COUNT(r.id), 0)                      AS rating_count
+      FROM products p
+      LEFT JOIN product_reviews r ON r.product_id = p.id
+      GROUP BY p.id
+      ORDER BY p.id ASC
+      LIMIT 5
+    `);
+
+    const topProducts = topProdResult.rows.map(row => ({
+      ...row,
+      avg_rating: Number(row.avg_rating),
+      rating_count: Number(row.rating_count),
+    }));
+
+    // 🔹 (A) Latest N reviews with product & user info (for the slider)
+    const { rows: latestReviews } = await pool.query(`
+      SELECT
+        r.id,
+        r.product_id,
+        r.rating,
+        r.review_text,
+        r.review_image,
+        r.created_at,
+
+        u.name                             AS reviewer_name,
+        COALESCE(up.profile_picture_url, '/images/default-avatar.png') AS reviewer_photo,
+
+        p.name        AS product_name,
+        p.image_url   AS product_image
+      FROM product_reviews r
+      JOIN users u           ON u.id = r.user_id
+      LEFT JOIN user_profiles up ON up.user_id = u.id
+      JOIN products p        ON p.id = r.product_id
+      ORDER BY r.created_at DESC
+      LIMIT $1
+    `, [12]); // how many review cards you want to show
+
+    // 🔹 (B) Avg + count for only the products that appear in (A)
+    const productIds = [...new Set(latestReviews.map(r => r.product_id))];
+    let summariesByProduct = new Map();
+
+    if (productIds.length) {
+      const { rows: sums } = await pool.query(`
+        SELECT
+          product_id,
+          ROUND(AVG(rating)::numeric, 1) AS avg_rating,
+          COUNT(*) AS rating_count
+        FROM product_reviews
+        WHERE product_id = ANY($1::int[])
+        GROUP BY product_id
+      `, [productIds]);
+
+      summariesByProduct = new Map(
+        sums.map(s => [s.product_id, {
+          avg_rating: Number(s.avg_rating),
+          rating_count: Number(s.rating_count),
+        }])
+      );
+    }
+
+    // attach avg/count to each review row
+    const reviews = latestReviews.map(r => {
+      const s = summariesByProduct.get(r.product_id) || { avg_rating: 0, rating_count: 0 };
+      return { ...r, ...s };
+    });
+
+    // profile (if logged in)
+    let profile = null;
     if (req.session.user) {
       const userId = req.session.user.id;
-      const profileResult = await pool.query(
+      const pr = await pool.query(
         'SELECT profile_picture_url FROM user_profiles WHERE user_id = $1',
         [userId]
       );
-      const profile = profileResult.rows[0];
-      const user = {
-        profile_picture: profile?.profile_picture_url || '', 
-      }
-      res.render('home', {
-        user,
-        categories
-      });
-    } else {
-      res.render('home', {
-        user: req.session.user,
-        categories
-      });
+      profile = pr.rows[0] || null;
     }
 
-    
+    res.render('home', {
+      user: req.session.user,
+      profile,
+      categories,
+      topProducts,
+      reviews,            // ✅ pass reviews to the view
+      successMessage
+    });
+
   } catch (err) {
-    console.error("Error loading home:", err);
-    res.status(500).send("Internal Server Error");
+    console.error('Error loading home:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+// search in home section
+app.get('/api/search', async (req, res) => {
+  const query = req.query.query;
+  if (!query) return res.json([]);
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, image_url FROM products WHERE LOWER(name) LIKE $1 LIMIT 10`,
+      [`%${query.toLowerCase()}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+// search for products section
+app.get('/search-products', async (req, res) => {
+  const query = req.query.q || '';
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, price, image_url FROM products WHERE name ILIKE $1`,
+      [`%${query}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 
 app.get('/products', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
-    const products = result.rows;
+  const userId = req.session?.user?.id || null;
 
-    res.render('products', { products }); // ✅ Pass products to EJS
+  try {
+    // (1) Profile (only if logged in)
+    let profile = null;
+    if (userId) {
+      const profileResult = await pool.query(
+        `SELECT * FROM user_profiles WHERE user_id = $1`,
+        [userId]
+      );
+      profile = profileResult.rows[0] || null;
+    }
+
+    // (2) Categories
+    const categoryResult = await pool.query(
+      `SELECT name FROM categories ORDER BY name ASC`
+    );
+    const categories = categoryResult.rows;
+
+    // (3) Products with rating summary (avg + count)
+
+    const productsResult = await pool.query(`
+      SELECT
+        p.*,
+        COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+        COALESCE(COUNT(r.id), 0)                         AS rating_count
+      FROM products p
+      LEFT JOIN product_reviews r
+        ON r.product_id = p.id
+      GROUP BY p.id
+      ORDER BY p.id ASC
+    `);
+
+    const products = productsResult.rows.map(row => ({
+      ...row,
+      // Ensure numbers are plain JS numbers (not strings)
+      avg_rating: Number(row.avg_rating),
+      rating_count: Number(row.rating_count),
+    }));
+
+    return res.render('products', { products, categories, profile });
   } catch (error) {
     console.error('❌ Error fetching products:', error);
-    res.status(500).send('Error loading products.');
+    return res.status(500).send('Error loading products.');
   }
 });
 
+
 app.get('/products/:id', async (req, res) => {
-  const { id } = req.params;
+  const productId = req.params.id;
+  const userId  = req.session?.user?.id;
+  const profileResult = await pool.query(`SELECT profile_picture_url FROM user_profiles WHERE user_id =$1`, [userId]);
+  const profile = {};
 
   try {
-    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+    // Fetch products
+    const productResult = await pool.query('SELECT * FROM products WHERE id = $1', [productId]);
 
-    if (result.rows.length === 0) {
+    if (productResult.rows.length === 0) {
       return res.status(404).send('Product not found');
     }
+    const product = productResult.rows[0];
 
-    const product = result.rows[0];
+    // Fetch related products from same category (excluding current)
 
-    // Fetch 3 related products from same category (excluding current)
     const relatedResult = await pool.query(
-      'SELECT * FROM products WHERE category = $1 AND id != $2 LIMIT 3',
-      [product.category, id]
+      `SELECT
+        p.*,
+        COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
+        COALESCE(COUNT(r.id), 0)                         AS rating_count
+      FROM products p 
+      LEFT JOIN product_reviews r
+        ON r.product_id = p.id
+      WHERE p.category = $1 AND p.id != $2
+      GROUP BY p.id
+      ORDER BY p.id ASC`,
+      [product.category, productId]
     );
+    const relatedProducts = relatedResult.rows.map(row => ({
+      ...row,
+      // Ensure numbers are plain JS numbers (not strings)
+      avg_rating: Number(row.avg_rating),
+      rating_count: Number(row.rating_count),
+    }));
 
-    const relatedProducts = relatedResult.rows;
+    //Fetch reviews 
+    const reviewResult = await pool.query(
+      `SELECT pr.*, u.name
+      FROM product_reviews pr
+      JOIN users u ON pr.user_id = u.id
+      WHERE pr.product_id = $1
+      ORDER BY pr.created_at DESC`,
+      [productId]
+    );
+    const reviews = reviewResult.rows;
 
-    res.render('productDetail', { product, relatedProducts });
+    //Fetch ratings by Calculating avg rating
+    const avgRatingResult = await pool.query (
+      `SELECT ROUND(AVG(rating), 1) AS avg_rating
+      FROM product_reviews
+      WHERE product_id = $1`,
+      [productId]
+    );
+    const avgRating = avgRatingResult.rows[0].avg_rating || 0;
+
+    const ratingCountResult = await pool.query (
+      `SELECT COUNT(*) AS rating_counts FROM product_reviews WHERE product_id = $1`, [productId]
+    );
+    const ratingCount = ratingCountResult.rows[0].rating_counts;
+
+    // Display review form
+    let isVerifiedBuyer = false;
+    if (userId) {
+      const buyerCheckQuery = `
+        SELECT oi.id
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        WHERE o.user_id = $1 AND oi.product_id = $2 AND o.payment_status = 'Paid'
+        LIMIT 1
+      `;
+      const buyerCheckResult = await pool.query(buyerCheckQuery, [userId, productId]);
+      isVerifiedBuyer = buyerCheckResult.rowCount > 0;
+    }
+
+    res.render('productDetail', {
+      product, 
+      relatedProducts, 
+      reviews,
+      avgRating,
+      ratingCount,
+      userId,
+      isVerifiedBuyer,
+      profile
+    });
 
   } catch (err) {
     console.error("❌ Error fetching product:", err);
@@ -139,10 +345,51 @@ app.get('/products/:id', async (req, res) => {
   }
 });
 
+// add a review
+app.post("/product/:id/review", uploadReviewImage.single("reviewImage"), async (req, res) => {
+  const productId = req.params.id;
+  const userId = req.session.user?.id;
+  const { rating, review_text } = req.body;
+  const imagePath = req.file ? `/uploads/reviews/${req.file.filename}` : null;
+
+  if (!userId) {
+    return res.status(401).send("Login required to submit review");
+  }
+
+  try {
+    // 1. Check if user has purchased this product
+    const result = await pool.query(
+      `SELECT oi.id FROM order_items oi
+       INNER JOIN orders o ON oi.order_id = o.id
+       WHERE o.user_id = $1 AND oi.product_id = $2 AND o.payment_status = 'Paid' LIMIT 1`,
+      [userId, productId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(403).send("Only buyers can review this product.");
+    }
+
+    // 2. Insert review
+    await pool.query(
+      `INSERT INTO product_reviews (user_id, product_id, rating, review_text, review_image)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [userId, productId, rating, review_text, imagePath]
+    );
+
+    res.redirect(`/products/${productId}#reviews`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error submitting review");
+  }
+});
+
+
 app.get('/cart', requireLogin, async (req, res) => {
   const userId = req.session.user.id;
 
   try {
+    const profileResult = await pool.query (`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+    const profile = profileResult.rows[0];
     const result = await pool.query(`
       SELECT ci.*, p.name, p.price, p.image_url
       FROM cart_items ci
@@ -156,7 +403,7 @@ app.get('/cart', requireLogin, async (req, res) => {
       sum + item.price * item.quantity, 0
     );
 
-    res.render('cart', { cartItems, totalPrice });
+    res.render('cart', { profile, cartItems, totalPrice });
 
   } catch (err) {
     console.error("❌ Error loading cart:", err);
@@ -281,8 +528,12 @@ app.post('/buy-now/customize', requireLogin, upload.single('customImage'), async
 
 // Route: GET /checkout/:productId
 app.get('/checkout', requireLogin, async (req, res) => {
+
   const userId = req.session.user.id;
   const addresses = await pool.query(`SELECT * FROM user_addresses WHERE user_id = $1`, [userId]);
+
+  const profileResult = await pool.query (`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+  const profile = profileResult.rows[0];
   
   if (req.session.buyNowItem) {
     const item = req.session.buyNowItem;
@@ -304,7 +555,8 @@ app.get('/checkout', requireLogin, async (req, res) => {
         image_url: product.image_url,
         product_id: item.product_id
       }],
-      totalPrice: total
+      totalPrice: total,
+      profile
     });
   }
   try {
@@ -332,7 +584,7 @@ app.get('/checkout', requireLogin, async (req, res) => {
       sum + item.price * item.quantity, 0
     );
 
-    res.render('checkout', { cartItems, addresses, totalPrice, isBuyNow: false });
+    res.render('checkout', { profile, cartItems, addresses, totalPrice, isBuyNow: false });
 
   } catch (err) {
     console.error("❌ Checkout error:", err);
@@ -436,10 +688,10 @@ app.post('/place-order', requireLogin, async (req, res) => {
 
     // ✅ 3. Insert Order
     const orderRes = await pool.query(
-      `INSERT INTO orders (user_id, address_id, total_amount, razorpay_payment_id)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO orders (user_id, address_id, total_amount, razorpay_payment_id, payment_status)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id`,
-      [userId, addressId, totalAmount, razorpay_payment_id]
+      [userId, addressId, totalAmount, razorpay_payment_id, 'Paid']
     );
 
     const orderId = orderRes.rows[0].id;
@@ -448,8 +700,8 @@ app.post('/place-order', requireLogin, async (req, res) => {
     const insertPromises = orderItems.map(item => {
       return pool.query(`
         INSERT INTO order_items
-        (order_id, product_id, quantity, customization_text, image_path, whatsapp, use_default)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        (order_id, product_id, quantity, customization_text, image_path, whatsapp, use_default, unit_price, subtotal)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `, [
         orderId,
         item.product_id,
@@ -457,7 +709,9 @@ app.post('/place-order', requireLogin, async (req, res) => {
         item.customization_text || null,
         item.image_path || null,
         item.whatsapp || null,
-        item.use_default
+        item.use_default,
+        item.price,
+        totalAmount
       ]);
     });
 
@@ -484,6 +738,9 @@ app.get('/order-success/:id', requireLogin, async (req, res) => {
   const userId = req.session.user.id;
 
   try {
+    const profileResult = await pool.query (`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+    const profile = profileResult.rows[0];
+
     const orderRes = await pool.query(
       `SELECT * FROM orders WHERE id = $1 AND user_id = $2`,
       [orderId, userId]
@@ -491,7 +748,7 @@ app.get('/order-success/:id', requireLogin, async (req, res) => {
 
     if (orderRes.rows.length === 0) return res.status(404).send("Order not found");
 
-    res.render('orderSuccess', { order: orderRes.rows[0] });
+    res.render('orderSuccess', { profile, order: orderRes.rows[0] });
 
   } catch (err) {
     console.error("❌ Error loading order success page:", err);
@@ -615,10 +872,20 @@ app.post('/signup', async (req, res) => {
       [name, email, hashedPassword]
     );
 
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
+
     // 🔐 Clear session
     req.session.otp = null;
     req.session.otpEmail = null;
     req.session.otpVerified = null;
+
+    // Save user in session
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email
+    };
 
     return res.json({ 
         success: true,
@@ -638,7 +905,6 @@ app.post('/signup', async (req, res) => {
     });
   }
 });
-
 
 // Render login form
 app.get('/login', (req, res) => {
@@ -696,6 +962,15 @@ app.get('/profile', requireLogin, async (req, res) => {
     const user = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
     const userInfo = user.rows[0];
 
+    const profileResult = await pool.query (`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+    const profile = profileResult.rows[0] || {};
+    // Format the date for the input field
+    if (profile && profile.date_of_birth) {
+      const dob = new Date(profile.date_of_birth);
+      const formattedDate = dob.toISOString().split('T')[0]; // YYYY-MM-DD format
+      profile.formatted_dob = formattedDate;
+    }
+
     const addressRes = await pool.query('SELECT * FROM user_addresses WHERE user_id = $1', [userId]);
     const addresses = addressRes.rows;
 
@@ -723,11 +998,80 @@ app.get('/profile', requireLogin, async (req, res) => {
       items: order.items || []
     }));
 
-    res.render('profile', { user: userInfo, addresses, orders });
+    res.render('profile', { user: userInfo, profile, addresses, orders });
 
   } catch (err) {
     console.error("❌ Profile load error:", err);
     res.status(500).send("Failed to load profile");
+  }
+});
+
+// pp update
+app.post('/update-pp', requireLogin, upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send("No file uploaded");
+  }
+
+  const pp_url = 'uploads/' + req.file.filename;
+  const userId = req.session.user.id;
+
+  try {
+    const result = await pool.query(`
+      INSERT INTO user_profiles (user_id, profile_picture_url)
+      VALUES ($1, $2)
+      ON CONFLICT (user_id)  -- Assuming user_id is the unique column
+      DO UPDATE SET profile_picture_url = $2
+      RETURNING *`, 
+      [userId, pp_url]);
+
+    res.redirect('/profile');
+  } catch (error) {
+    console.error("Error in uploading pp: ", error);
+    res.status(500).send("Error in uploading profile picture.");
+  }
+});
+
+app.post('/profile', requireLogin, async (req, res) => {
+  const userId = req.session.user.id;
+  const { name, email, phone, gender, dob, bio } = req.body;
+
+  try {
+    // Validate required fields
+    if (!name || !email) {
+      return res.status(400).json({ success: false, message: 'Name and email are required' });
+    }
+
+    // Upsert user_profiles table (additional info)
+    const profileUpdate = await pool.query(
+      `INSERT INTO user_profiles 
+       (user_id, phone_number, gender, date_of_birth, bio, updated_at)
+       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET 
+         phone_number = EXCLUDED.phone_number,
+         gender = EXCLUDED.gender,
+         date_of_birth = EXCLUDED.date_of_birth,
+         bio = EXCLUDED.bio,
+         updated_at = EXCLUDED.updated_at
+       RETURNING *`,
+      [userId, phone, gender, dob, bio]
+    );
+    
+    res.json({ 
+      success: true,
+      user: {
+        ...profileUpdate.rows[0]
+      }
+    });
+
+  } catch (error) {
+   
+    console.error('Profile update error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating profile',
+     
+    });
   }
 });
 
@@ -762,7 +1106,6 @@ app.post("/profile/address/add", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to add address" });
   }
 });
-
 
 app.put("/profile/address/edit/:id", async (req, res) => {
   if (!req.session.user) return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -820,7 +1163,6 @@ app.delete("/profile/address/delete/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete address" });
   }
 });
-
 
 app.patch("/profile/address/set-default/:id", async (req, res) => {
   if (!req.session.user) return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -898,11 +1240,11 @@ app.post("/profile/address", async (req, res) => {
   }
 });
 
-
-
 app.get('/download-invoice/:id', requireLogin, async (req, res) => {
   const orderId = parseInt(req.params.id);
   const userId = req.session.user.id;
+  const profileResult = await pool.query (`SELECT * FROM user_profiles WHERE user_id = $1`, [userId]);
+  const profile = profileResult.rows[0];
 
   try {
     // Fetch order
@@ -1040,242 +1382,6 @@ app.get('/download-invoice/:id', requireLogin, async (req, res) => {
   }
 });
 // ---------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-// Admin Login form
-app.get('/admin-login', (req, res) => {
-  res.render('admin-login', { error: null });
-});
-
-// Handle login form
-app.post('/admin/login', (req, res) => {
-  const { username, password } = req.body;
-
-  // Hardcoded credentials (can be replaced by DB check)
-  const adminUser = process.env.ADMIN_USER;
-  const adminPass = process.env.ADMIN_PASS;
-
-  if (username === adminUser && password === adminPass) {
-    req.session.isAdmin = true;
-    res.redirect('/admin');
-  } else {
-    res.render('admin-login', { error: 'Invalid credentials' });
-  }
-});
-
-function requireAdmin(req, res, next) {
-  if (req.session.isAdmin) {
-    next();
-  } else {
-    res.redirect('/admin-login');
-  }
-}
-
-app.get('/admin', requireAdmin, (req, res) => {
-  res.render('admin', { user: req.session.user });
-});
-
-// Render add product form
-app.get('/admin/add-product', requireAdmin, async(req, res) => {
-  const result = await pool.query('SELECT name FROM categories ORDER BY name ASC');
-  res.render('addProduct', {categories: result.rows});
-});
-
-// Handle product form submission
-app.post('/admin/add-product', requireAdmin, upload.single('image'), async (req, res) => {
-  const { name, price, description, category, customCategory } = req.body;
-  const imageFile = req.file;
-
-  if(!name || !price || !description || !imageFile) {
-    return res.status(400).send("MIssing fields");
-  }
-
-  const image_url = '/uploads/' + imageFile.filename;
-  const finalCategory = category === '__custom__'? customCategory : category;
-  // Ensure new category gets saved to DB
-  if (category === '__custom__' && customCategory) {
-    await pool.query('INSERT INTO categories (name) VALUES ($1) ON CONFLICT DO NOTHING', [customCategory]);
-  }
-
-  try {
-    await pool.query(
-      'INSERT INTO products (name, price, description, image_url, category) VALUES ($1, $2, $3, $4, $5)',
-      [name, price, description, image_url, finalCategory]
-    );
-
-    res.redirect('/admin/products');
-  } catch (err) {
-    console.error("❌ Error adding product:", err);
-    res.status(500).send("Failed to add product");
-  }
-});
-
-// View Products in Admin
-app.get('/admin/products', requireAdmin, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
-    const products = result.rows;
-
-    res.render('adminProducts', { products });
-  } catch (err) {
-    console.error("❌ Error loading admin products:", err);
-    res.status(500).send("Could not load products");
-  }
-});
-
-// Edit Product in Admin
-app.get('/admin/edit-product/:id', requireAdmin, async (req, res) => {
-  const productId = req.params.id;
-
-  try {
-    const productResult = await pool.query('SELECT * FROM products WHERE id = $1', [productId]);
-    const product = productResult.rows[0];
-
-    const categoryResult = await pool.query('SELECT name FROM categories ORDER BY name ASC');
-
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
-
-    res.render('editProduct', { product, categories: categoryResult.rows });
-  } catch (err) {
-    console.error("❌ Error fetching product for edit:", err);
-    res.status(500).send("Could not fetch product");
-  }
-});
-
-app.post('/admin/edit-product/:id', requireAdmin, upload.single('image'), async (req, res) => {
-  const productId = req.params.id;
-  const { name, price, description, category, customCategory,  } = req.body;
-  const imageFile = req.file;
-
-  const finalCategory = category === '__custom__' ? customCategory : category;
-  // Ensure new category gets saved to DB
-  if (category === '__custom__' && customCategory) {
-    await pool.query('INSERT INTO categories (name) VALUES ($1) ON CONFLICT DO NOTHING', [customCategory]);
-  }
-  try {
-    let image_url = req.body.currentImage;
-    if (imageFile) {
-      image_url = '/uploads/' + imageFile.filename;
-    }
-    await pool.query(
-      'UPDATE products SET name = $1, price = $2, description = $3, image_url = $4, category = $5 WHERE id = $6',
-      [name, price, description, image_url, finalCategory, productId]
-    );
-
-    res.redirect('/admin/products');
-  } catch (err) {
-    console.error("❌ Error updating product:", err);
-    res.status(500).send("Failed to update product");
-  }
-});
-
-// Delete Product in Admin
-app.post('/admin/delete-product/:id', requireAdmin, async (req, res) => {
-  const productId = req.params.id;
-
-  try {
-    await pool.query('DELETE FROM products WHERE id = $1', [productId]);
-    res.redirect('/admin/products');
-  } catch (err) {
-    console.error("❌ Error deleting product:", err);
-    res.status(500).send("Failed to delete product");
-  }
-});
-
-app.get('/admin/orders', requireAdmin, async (req, res) => {
-  try {
-    const ordersRes = await pool.query(`
-      SELECT o.*, u.name AS customer_name
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      ORDER BY o.created_at DESC
-    `);
-
-    res.render('admin/orders', {
-      orders: ordersRes.rows
-    });
-  } catch (err) {
-    console.error("❌ Error fetching admin orders:", err);
-    res.status(500).send("Failed to load admin orders.");
-  }
-});
-
-app.get('/admin/orders/:id', requireAdmin, async (req, res) => {
-  const orderId = parseInt(req.params.id);
-
-  try {
-    // Fetch order with customer name and shipping address
-    const orderResult = await pool.query(`
-      SELECT o.*, 
-             u.name AS customer_name, 
-             a.full_name, a.address_line1, a.address_line2, a.city, a.state, a.postal_code, a.country
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      LEFT JOIN user_addresses a ON o.address_id = a.id
-      WHERE o.id = $1
-    `, [orderId]);
-
-    if (orderResult.rows.length === 0) {
-      return res.status(404).send("Order not found");
-    }
-
-    const order = orderResult.rows[0];
-
-    // Format address for easier EJS rendering
-    order.address = {
-      full_name: order.full_name,
-      address_line1: order.address_line1,
-      address_line2: order.address_line2,
-      city: order.city,
-      state: order.state,
-      postal_code: order.postal_code,
-      country: order.country,
-    };
-
-    // Fetch order items
-    const itemResult = await pool.query(`
-      SELECT oi.*, p.name AS product_name
-      FROM order_items oi
-      JOIN products p ON oi.product_id = p.id
-      WHERE oi.order_id = $1
-    `, [orderId]);
-
-    const items = itemResult.rows;
-
-    res.render('admin/adminOrderDetail', { order, items });
-
-  } catch (err) {
-    console.error("❌ Error loading admin order detail:", err);
-    res.status(500).send("Error loading order details.");
-  }
-});
-
-app.post('/admin/orders/:id/status', requireAdmin, async (req, res) => {
-  const orderId = parseInt(req.params.id);
-  const { status } = req.body;
-
-  try {
-    await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, orderId]);
-    res.redirect(`/admin/orders`);
-  } catch (err) {
-    console.error("❌ Error updating order status:", err);
-    res.status(500).send("Could not update status.");
-  }
-});
-
-
-
-app.get('/admin/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/admin-login');
-  });
-});
-
 
 app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);

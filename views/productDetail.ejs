@@ -6,106 +6,317 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/productDetail.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 
   <%- include("partials/navbar") %>
-
   <div class="product-detail-container">
-    <div class="product-detail-card">
-      <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-detail-image">
+    <div class="product-detail-wrapper">
 
-      <div class="product-detail-info">
-        <h1 class="product-detail-name"><%= product.name %></h1>
-        <p class="product-detail-price">₹<%= product.price %></p>
-        <div class="product-detail-actions">
-          <button class="product-detail-btn" onclick="openCustomizationModal('cart')">Add to Cart</button>
-          <button class="product-detail-btn buy-now-btn" onclick="openCustomizationModal('buy-now')">Buy Now</button>
+      <!-- LEFT: Product Image -->
+      <div class="product-detail-left">
+        <!-- <div class="sale-tag">SALE</div> -->
+        <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-detail-image">
+      </div>
 
-          <!-- Customization Modal -->
-          <div id="customization-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content">
-              <h2>Customize Your Product</h2>
-              <form id="customization-form" method="POST" enctype="multipart/form-data" data-product-id="<%= product.id %>">
+      <!-- RIGHT: Product Info -->
+      <div class="product-detail-right">
 
-                <div class="form-group">
-                  <input type="hidden" name="actionType" id="actionTypeInput" value="cart">
-                </div>
-                <input type="hidden" name="product_id" value="<%= product.id %>">
+        <!-- Product Info -->
+        <div class="product-detail-info">
+          <h1 class="product-detail-name"><%= product.name %></h1>
+          <div class="rating-box">
+            <span class="stars"><%= avgRating%>★</span>
+            <span class="rating-count">(<%= ratingCount %>)</span>
+          </div>
 
-                <div class="form-group">
-                  <label><input type="checkbox" id="default-check" name="default"> Use Default (No Customization)</label>
-                </div>
+          <div class="product-price-wrapper">
+            <p class="product-detail-price">₹<%= product.price %></p>
+            <% if (product.original_price && product.original_price > product.price) { %>
+              <p class="original-price">₹<%= product.original_price %></p>
+              <p class="discount-percentage">
+                <%= Math.round(((product.original_price - product.price) / product.original_price) * 100) %>% off
+              </p>
+            <% } %>
+          </div>
 
-                <div class="form-group">
-                  <label for="customText">Enter Customizable Description:</label>
-                  <input type="text" id="customText" name="customization_text" required>
-                </div>
+          <p class="tax-note">Inclusive of all Taxes.</p>
 
-                <div class="form-group">
-                  <label for="customImage">Upload Image:</label>
-                  <input type="file" id="customImage" name="customImage" accept="image/*">
-                </div>
+          <p class="delivery-tag">Free Delivery <span class="delivery-discount">Get this as low as ₹<%= product.price - 100 %></span></p>
 
-                <div class="form-group">
-                  <label for="whatsapp">Provide WhatsApp Number <span style="font-weight: normal;">(optional)</span>:</label>
-                  <input type="text" id="whatsapp" name="whatsapp" placeholder="e.g. 9876543210">
-                </div>
-
-                <div class="form-group quantity-control">
-                  <label>Quantity:</label>
-                  <button type="button" onclick="decreaseQty()">−</button>
-                  <input type="number" id="modalQuantity" name="quantity" value="1" min="1" readonly>
-                  <button type="button" onclick="increaseQty()">+</button>
-                </div>
-
-                <div class="form-actions">
-                  <button type="submit" id="cart-btn" class="product-detail-btn">Add to Cart</button>
-                  <button type="submit" id="buy-btn" class="product-detail-btn hidden">Buy Now</button>
-                  <button type="button" class="modal-close-btn" onclick="closeCustomizationForm()">Cancel</button>
-                </div>
-
-              
-              </form>
+          <!-- Quantity & Size -->
+          <div class="product-options">
+            <div>
+              <label>Size</label>
+              <select>
+                <option>10x5 inches</option>
+                <option>12x6 inches</option>
+              </select>
             </div>
           </div>
 
-        </div>
-        <a href="/products" class="product-detail-back">← Back to Products</a>
+          <!-- Buttons -->
+          <div class="product-detail-actions">
+            <button class="product-detail-btn" onclick="openCustomizationModal('cart')">
+              ADD TO BAG<br><span class="tag">(Customisable)</span>
+            </button>
+            <button class="product-detail-btn buy-now-btn" onclick="openCustomizationModal('buy-now')">
+              BUY NOW<br><span class="tag">(Customisable)</span>
+            </button>
+          </div>
 
-       
+          <!-- Extra info like delivery, cod -->
+          <ul class="product-detail-services">
+            <li>🚚 Get it delivered in 3–7 days</li>
+            <li>💰 Cash on Delivery</li>
+            <li>🔁 Easy 5 days return</li>
+          </ul>
+
+          <!-- Product Description -->
+          <div class="product-description-box">
+            <h3>Product Description</h3>
+
+            <span id="short-desc">
+              <p class="product-detail-description">
+                <%= product.description.substring(0, 200) %>
+                <button onclick="toggleDesc(true)" class="read-desc">Read more</button>
+              </p>
+            </span>
+
+            <span id="full-desc" style="display: none;">
+              <p class="product-detail-description">
+                <%= product.description %>
+                <button onclick="toggleDesc(false)" class="read-desc">Read less</button>
+              </p>
+            </span>
+          </div>
+
+          <!-- <a href="/products" class="product-detail-back">← Back to Products</a> -->
+        </div>
 
       </div>
     </div>
-    <h3>Product Description:</h3>
-    <span id="short-desc">
-        <p class="product-detail-description"><%= product.description.substring(0, 200) %> <button onclick="toggleDesc(true)" class="read-desc">Read more</button>
-        </p>
-    </span>
-    <span id="full-desc" style="display: none;">
-        <p class="product-detail-description"><%= product.description %>
-            <button onclick="toggleDesc(false)" class="read-desc">Read less</button>
-        </p>
-    </span>
-    
+
+    <!-- Include your customization modal here (already provided by you) -->
+    <!-- Customization Modal -->
+      <div id="customization-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+          <h2>Customize Your Product</h2>
+          <form id="customization-form" method="POST" enctype="multipart/form-data" data-product-id="<%= product.id %>">
+
+            <div class="form-group">
+              <input type="hidden" name="actionType" id="actionTypeInput" value="cart">
+            </div>
+            <input type="hidden" name="product_id" value="<%= product.id %>">
+
+            <div class="form-group">
+              <label><input type="checkbox" id="default-check" name="default"> Use Default (No Customization)</label>
+            </div>
+
+            <div class="form-group">
+              <label for="customText">Enter Customizable Description:</label>
+              <input type="text" id="customText" name="customText" required>
+            </div>
+
+            <div class="form-group">
+              <label for="customImage">Upload Image:</label>
+              <input type="file" id="customImage" name="customImage" accept="image/*">
+            </div>
+            <div class="form-group">
+              <label for="whatsapp">Provide WhatsApp Number <span style="font-weight: normal;">(optional)</span>:</label>
+              <input type="text" id="whatsapp" name="whatsapp" placeholder="e.g. 9876543210">
+            </div>
+
+            <div class="form-group quantity-control">
+              <label>Quantity:</label>
+              <button type="button" onclick="decreaseQty()">−</button>
+              <input type="number" id="modalQuantity" name="quantity" value="1" min="1" readonly>
+              <button type="button" onclick="increaseQty()">+</button>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="cart-btn" class="product-detail-btn">Add to Cart</button>
+              <button type="submit" id="buy-btn" class="product-detail-btn hidden">Buy Now</button>
+              <button type="button" class="modal-close-btn" onclick="closeCustomizationForm()">Cancel</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
   </div>
 
 <% if (relatedProducts.length > 0) { %>
   <section class="related-products-section">
     <h2 class="related-products-title">You may also like</h2>
-    <div class="related-products-grid">
-      <% relatedProducts.forEach(item => { %>
-        <a href="/products/<%= item.id %>" class="related-product-card-link">
-          <div class="related-product-card">
-            <img src="<%= item.image_url %>" alt="<%= item.name %>" class="related-product-image">
-            <h3 class="related-product-name"><%= item.name %></h3>
-            <p class="related-product-price">₹<%= item.price %></p>
+    <div class="swiper relatedSwiper">
+      <div class="rel-products-grid swiper-wrapper">
+        <% relatedProducts.forEach(product => { %>
+          <div class="swiper-slide">
+            <div class="rel-product-card">
+              <a href="/products/<%= product.id %>" class="product-card-link">
+                <div class="product-image-wrapper">
+                  <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image">
+                </div>
+                <p class="customisable-tag">Customisable</p>
+                <div class="product-info">
+                  <p class="product-name"><%= product.name %></p>
+                  <!-- ⭐ Rating Section -->
+                  <div class="product-rating">
+                    <span class="stars"><%= product.avg_rating %>★</span>
+                    <span class="rating-count">(<%= product.rating_count %>)</span>
+                  </div>
+                  <p class="product-price">₹<%= product.price %></p>
+                  <% if (product.original_price && product.original_price > product.price) { %>
+                    <p class="product-original-price">₹<%= product.original_price %></p>
+                    <p class="product-discount">
+                      <%= Math.round(((product.original_price - product.price) / product.original_price) * 100) %>% off
+                    </p>
+                  <% } %>
+                </div>
+              </a>
+            </div>
           </div>
-        </a>
-      <% }) %>
+        <% }) %>
+      </div>
+      <!-- Controls (optional) -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next "></div>
+      <div class="swiper-pagination "></div>
     </div>
   </section>
 <% } %>
+
+
+<section class="review-slider-section">
+  <h2 class="review-slider-heading">What Our Customers Say</h2>
+  <% if (reviews.length === 0) { %>
+    <div class="no-reviews-warning">
+      <p >No reviews yet. Be the first to review!</p>
+    </div>
+  <% } else { %>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+        <% reviews.forEach(review => { %>
+          <div class="swiper-slide">
+            <div class="rel-product-card">
+              <div class="product-image-wrapper"> 
+                <% if (review.review_image) { %>
+                  <img src="<%= review.review_image %>" alt="Review Image" class="product-image" />
+                <% } else { %>
+                  <img src="<%= product.image_url %>" alt="Review Image" class="product-image" />
+                <% } %>
+              </div>
+              <div class="review-info">
+                    
+                <img src="/images/dp_alok.jpg" alt="User" class="review-user-img" />
+                <div class="review-user-info">
+                  <h4 class="review-user-name"><%= review.name %></h4>
+
+                  <!-- Star Rating -->
+                  <div class="review-stars"><%= avgRating %>
+                    <% for (let i = 1; i <= 5; i++) { %>
+                      <span class="<%= i <= review.rating ? 'star filled' : 'star' %>">★</span>
+                    <% } %> 
+                  </div>
+
+                  <!-- <span class="review-stars">★★★★★</span> -->
+                  <p class="review-date"><%= new Date(review.created_at).toLocaleDateString() %></p>
+                </div>
+              </div>
+              <div class="review-text">
+                <p><%= review.review_text %></p>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+        <!-- Controls (optional) -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next "></div>
+        <div class="swiper-pagination "></div>
+      </div>
+    </div>    
+  <% } %>
+</section>
+
+
+
+
+
+<!-- Review Form -->
+ 
+  <% if (isVerifiedBuyer) { %>
+  <section class="write-review">
+    <h3>Write a Review</h3>
+    <form
+      action="/product/<%= product.id %>/review"
+      method="POST"
+      enctype="multipart/form-data"
+      class="review-form"
+      id="reviewForm"
+    >
+      <!-- Star Rating -->
+      <div class="rating">
+        <input type="radio" id="star5" name="rating" value="5">
+        <label for="star5">★</label>
+
+        <input type="radio" id="star4" name="rating" value="4">
+        <label for="star4">★</label>
+
+        <input type="radio" id="star3" name="rating" value="3">
+        <label for="star3">★</label>
+
+        <input type="radio" id="star2" name="rating" value="2">
+        <label for="star2">★</label>
+
+        <input type="radio" id="star1" name="rating" value="1">
+        <label for="star1">★</label>
+      </div>
+
+      <!-- Review Text -->
+      <textarea
+        name="review_text"
+        placeholder="Write your thoughts about this product..."
+        required
+      ></textarea>
+
+      <!-- Image Upload -->
+      <label class="upload-label">Upload an image (optional):</label>
+      <input
+        type="file"
+        name="reviewImage"
+        accept="image/*"
+        onchange="previewReviewImage(event)"
+        style="display: none;"
+        id="photoInput"
+      />
+
+      <div class="photo-upload-div" id="uploadDiv">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+      </div>
+
+      <!-- Preview Image -->
+      <img id="reviewImagePreview" class="review-image-preview" style="display:none;" />
+
+      <button type="submit">Submit Review</button>
+      <p id="ratingError" class="rating-error"></p>
+
+    </form>
+
+  </section>
+  <% } else if (!userId) { %>
+    <div class="warning">
+      <p class="login-warning">Login to review this product.</p>
+    </div>
+    
+  <% } else { %>
+    <div class="warning">
+      <p class="not-allowed">You can only review products you’ve purchased.</p>
+    </div>
+  <% } %>
+  
+
 
 
 <script>
@@ -152,34 +363,82 @@
   }
 }
 
+const defaultCheck = document.getElementById("default-check");
+const customText = document.getElementById("customText");
+const customImage = document.getElementById("customImage");
+const whatsapp = document.getElementById("whatsapp");
 
+defaultCheck.addEventListener("change", function () {
+  const disabled = this.checked;
+  customText.disabled = disabled;
+  customImage.disabled = disabled;
+  whatsapp.disabled = disabled;
+});
 
-  const defaultCheck = document.getElementById("default-check");
-  const customText = document.getElementById("customText");
-  const customImage = document.getElementById("customImage");
-  const whatsapp = document.getElementById("whatsapp");
+function increaseQty() {
+  const input = document.getElementById("modalQuantity");
+  input.value = parseInt(input.value) + 1;
+}
 
-  defaultCheck.addEventListener("change", function () {
-    const disabled = this.checked;
-    customText.disabled = disabled;
-    customImage.disabled = disabled;
-    whatsapp.disabled = disabled;
-  });
+function decreaseQty() {
+  const input = document.getElementById("modalQuantity");
+  if (parseInt(input.value) > 1) {
+    input.value = parseInt(input.value) - 1;
+  }
+}
 
-  function increaseQty() {
-    const input = document.getElementById("modalQuantity");
-    input.value = parseInt(input.value) + 1;
+function previewReviewImage(event) {
+  const img = document.getElementById('reviewImagePreview');
+  img.src = URL.createObjectURL(event.target.files[0]);
+  img.style.display = 'block';
+}
+
+// Upload image
+const uploadDiv = document.getElementById('uploadDiv');
+const photoInput = document.getElementById('photoInput');
+
+// When div is clicked, trigger file input click
+uploadDiv.addEventListener('click', () => {
+  photoInput.click();
+});
+
+// Displaying rating error
+document.getElementById("reviewForm").addEventListener("submit", function (e) {
+  const selectedRating = document.querySelector('input[name="rating"]:checked');
+  const errorElement = document.getElementById("ratingError");
+
+  if (!selectedRating) {
+    e.preventDefault(); // stop form submission
+    errorElement.textContent = "Please select a rating before submitting.";
+    return false;
   }
 
-  function decreaseQty() {
-    const input = document.getElementById("modalQuantity");
-    if (parseInt(input.value) > 1) {
-      input.value = parseInt(input.value) - 1;
-    }
-  }
-
-
+  // Clear any previous error
+  errorElement.textContent = "";
+});
 </script>
 
+<script>
+  const zoomContainer = document.querySelector('.product-detail-left');
+  const zoomImage = document.querySelector('.product-detail-image');
+
+  zoomContainer.addEventListener('mousemove', (e) => {
+    const rect = zoomContainer.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    zoomImage.style.transformOrigin = `${x}% ${y}%`;
+    zoomImage.style.transform = 'scale(2)'; // adjust zoom scale as needed
+  });
+
+  zoomContainer.addEventListener('mouseleave', () => {
+    zoomImage.style.transformOrigin = 'center center';
+    zoomImage.style.transform = 'scale(1)';
+  });
+</script>
+
+
+<script src="/js/navbar.js"></script>
+<script src="/js/productdetail.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </body>
 </html>

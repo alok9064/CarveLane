@@ -6,18 +6,28 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 </head>
 <body>
   <%- include("partials/navbar") %>
 
   <div class="login-container">
-    <h1>Login</h1>
-    <form action="/login" method="POST">
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <button type="submit">Login</button>
-    </form>
-    <p>New user? <a href="/signup">Create an account</a></p>
+    <div class="login-left-pane" >
+      <img src="" alt="">
+    </div>
+
+    <div class="login-right-pane">
+      <h1>Login</h1>
+      <form action="/login" method="POST">
+        <input type="email" name="email" placeholder="Email" required  class="login-email"/>
+        <input type="password" name="password" placeholder="Password" required class="login-pass"/>
+        <p class="login-forgot-pass"><a href="#">Forgot Password ?</a></p>
+        <button type="submit">Login</button>
+      </form>
+      <p>New user? <a href="/signup">Create an account</a></p>
+    </div>
   </div>
+  <script src="/js/navbar.js"></script>
 </body>
 </html>

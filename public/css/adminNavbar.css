@@ -1,8 +1,14 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 .admin-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #222;
+  background-color: #034C53;
   color: white;
   padding: 1rem 2rem;
 }
@@ -25,9 +31,9 @@
 }
 
 .logout-btn {
-  background: #ff4d4d;
+  all: unset;
+  background: #093438;
   padding: 0.4rem 0.8rem;
-  border-radius: 5px;
   display: inline-block;
 }
 

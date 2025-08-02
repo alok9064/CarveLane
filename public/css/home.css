@@ -1,69 +1,121 @@
-/* ===== Home Page Styles ===== */
+/* ===== Home Page Container ===== */
 .home-container {
-  padding: 2rem;
+  padding: 0 20px;
 }
 
+/* ===== Hero Section ===== */
 .home-hero {
+  background: url('/images/CarveLane2.jpg') no-repeat center center/cover;
   text-align: center;
-  padding: 3rem 1rem;
-  background: #f0f0f0;
-  border-radius: 8px;
+  /* border-radius: 8px; */
+  /* height: 600px; */
+  aspect-ratio: 4 / 1;
+  width: 100%;
+  /* background-color: #034C53; */
 }
 
 .home-title {
   font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
+  color: #222;
 }
 
 .home-subtitle {
   font-size: 1.2rem;
   color: #666;
+  margin-bottom: 1.5rem;
 }
 
-.home-search-bar {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+/* ===== Search Bar ===== */
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  margin: 20px auto;
+  
 }
 
-.home-search-input,
-.home-search-filter,
-.home-search-button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+#searchInput {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
   border: 1px solid #ccc;
-  font-size: 1rem;
+  font-size: 16px;
+  outline: none;
 }
 
-.home-search-button {
-  background-color: #222;
-  color: white;
+#clearSearch {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #666;
   cursor: pointer;
+  display: none; /* shown only when input has value */
 }
 
+/* ===== Search Results ===== */
+#searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  margin-top: 1.5rem;
+  overflow-y: auto;      /* Enables vertical scrolling */
+  
+}
+  #searchResults::-webkit-scrollbar {
+    width: 6px;
+  }
+  #searchResults::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+
+.search-result-item {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  border: 1px solid #eee;
+  padding: 10px;
+  width: 100%;
+  max-width: 500px;
+  /* border-radius: 8px; */
+  background: #fafafa;
+  text-align: left;
+  transition: box-shadow 0.2s ease;
+}
+
+.search-result-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.search-result-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  /* border-radius: 4px; */
+}
+
+.search-result-item a {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* ===== Banner Carousel ===== */
 .home-banner {
   margin-top: 3rem;
 }
 
-/* .home-banner-images {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-}
-
-.home-banner-image {
-  height: 200px;
-  border-radius: 8px;
-  object-fit: cover;
-} */
-
-/* ===== Banner Carousel Animation ===== */
 .home-banner-carousel {
   position: relative;
   height: 250px;
   overflow: hidden;
+  border-radius: 8px;
 }
 
 .home-banner-image {
@@ -81,3 +133,227 @@
   opacity: 1;
   z-index: 1;
 }
+
+/* ----------------------------------------------------------- */
+.review-slider-section {
+  padding: 40px 20px 0 20px ;
+  box-sizing: border-box ;
+}
+.mySwiper{
+  padding: 0 20px !important;
+  margin-bottom: 40px !important;
+}
+
+.swiper-wrapper {
+  padding: 40px 0px ;
+}
+
+.review-slider-heading {
+  text-align: center;
+  font-size: 28px;
+  color: #034C53;
+}
+
+.no-reviews-warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.review-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: transform 0.3s;
+}
+.review-card:hover {
+  transform: scale(1.05);
+}
+
+.review-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.review-profile {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  height: 55px;
+}
+
+.review-info {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.review-user-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.review-user-info {
+  display: flex;
+  flex-direction: column;  
+}
+
+.review-user-name {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.review-stars {
+  color: #ffbb00;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+}
+
+.review-date {
+  font-size: 10px;
+  color: #888;
+}
+.review-text {
+  padding: 15px;
+  padding-top: 0;
+}
+.review-text p{
+  font-style: italic;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .home-title {
+    font-size: 2rem;
+  }
+
+  .home-subtitle {
+    font-size: 1rem;
+  }
+
+  #searchInput {
+    font-size: 15px;
+  }
+
+  .search-result-item {
+    flex-direction: row;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .search-result-item img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .home-banner-carousel {
+    height: 180px;
+  }
+
+  .mySwiper{
+    padding: 0 !important;
+    margin-bottom: 30px !important;
+  }
+  .review-image {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+  }
+  .review-info {
+    padding: 5px;
+    gap: 8px;
+  }
+
+  .review-user-img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .review-user-name {
+    font-size: 10px;
+    margin: 0;
+  }
+
+  .review-stars {
+    padding: 0;
+    margin: 0;
+    font-size: 9px;
+  }
+
+  .review-date {
+    font-size: 9px;
+  }
+  .review-text {
+    padding: 5px;
+    padding-top: 0 ;
+  }
+
+  .review-text p {
+    font-size: 9.5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;      /* Number of lines to show */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+
+}
+
+@media (max-width: 976px) {
+  
+}
+
+@media (max-width: 480px) {
+
+  .search-bar-container {
+    margin: 10px auto;
+  }
+  #searchInput {
+    font-size: 12px;
+  }
+
+  #clearSearch {
+    font-size: 14px;
+  }
+
+   .section-title {
+    font-size: 18px;
+   }
+  
+  .review-slider-section {
+    padding: 20px 20px 0 20px ;
+  }
+  .swiper-wrapper {
+    padding: 15px 0px ;
+    padding-bottom: 40px;
+  }
+
+  .review-slider-heading {
+    font-size: 1.2rem;
+  }
+  .mySwiper{
+    margin-bottom: 20px !important;
+  }
+
+
+  
+}
+

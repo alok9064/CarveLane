@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="/css/profileInfo.css">
   <link rel="stylesheet" href="/css/addressBook.css"/>
   <link rel="stylesheet" href="/css/order-history.css">
+  <link rel="stylesheet" href="/css/order-track-stepper.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
   <%- include("partials/navbar") %>
@@ -17,20 +19,26 @@
     <!-- Sidebar -->
     <aside class="profile-sidebar">
       <div class="user-greeting">
-        <img src="<%= user.profile_picture || '/images/default-profile.jpg'%>" alt="Profile Picture" class="profile-picture" />
+        <img src="<%= profile.profile_picture_url || '/images/person-circle.svg'%>" alt="Profile Picture" class="profile-picture" id="profilePicture" />
+        <form action="/update-pp" method="post" enctype="multipart/form-data" id="ppForm">
+          <input type="file" id="ppInput" name="image" accept="image/*" hidden>
+        </form>
         <h3>Hi, <%= user.name %>!</h3>
       </div>
-      <ul class="sidebar-menu">
-        <li data-target="personal-info" class="active">Personal Info</li>
-        <li data-target="address-book" class="my-address">Address Book</li>
-        <li data-target="order-history" class="my-order">Order History</li>
-        <li data-target="cart">Shopping Cart</li>
-        <!-- <div > -->
-          <form action="/logout" method="POST" class="profile-logout-div">
-            <button type="submit" class="profile-logout">Logout</button>
-          </form>
-        <!-- </div> -->
-      </ul>
+      <div class="sidebar-menu-main">
+        <ul class="sidebar-menu">
+          <li data-target="personal-info" class="active">Personal Info</li>
+          <li data-target="address-book" class="my-address">Address Book</li>
+          <li data-target="order-history" class="my-order">Order History</li>
+          <!-- <li data-target="cart">Shopping Cart</li> -->
+          <!-- <div > -->
+            
+          <!-- </div> -->
+        </ul>
+        <form action="/logout" method="POST" class="profile-logout-div">
+          <button type="submit" class="profile-logout">Logout</button>
+        </form>
+      </div>
       
     </aside>
 
@@ -61,6 +69,7 @@
       });
     </script>
   <% } %>
+  <script src="/js/navbar.js"></script>
   <script src="/js/profile.js"></script>
   <script src="/js/addressBook.js"></script
 </body>

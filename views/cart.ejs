@@ -1,71 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Your Cart | CarveLane</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/navbar.css">
-  <link rel="stylesheet" href="/css/cart.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Base styles you already have -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+  <!-- New/Improved cart styles -->
+  <link rel="stylesheet" href="/css/cart.css" />
 </head>
 <body>
 
 <%- include("partials/navbar") %>
 
-<div class="cart-container">
-  <h1>Your Cart</h1>
+<main class="cart-page">
+  <header class="cart-header container">
+    <h1>Your Cart</h1>
+  </header>
 
-  <% if (cartItems.length === 0) { %>
-    <p class="empty-cart-msg">Your cart is empty. <a href="/products">Browse products →</a></p>
-  <% } else { %>
-    <div class="cart-grid">
-      <% cartItems.forEach(item => { %>
-        <div class="cart-item-card">
-          <img src="<%= item.image_url %>" alt="<%= item.name %>" class="cart-item-img">
+  <section class="container">
+    <% if (cartItems.length === 0) { %>
+      <div class="empty-cart">
+        <img src="/images/empty-cart.svg" alt="" aria-hidden="true" />
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven’t added anything yet.</p>
+        <a href="/products" class="btn btn-primary">Browse products →</a>
+      </div>
+    <% } else { %>
 
-          <div class="cart-item-info">
-            <h3><%= item.name %></h3>
-            <p class="price">₹<%= item.price %> x <%= item.quantity %> = ₹<%= item.price * item.quantity %></p>
-
-            <% if (!item.use_default) { %>
-              <div class="custom-info">
-                <% if (item.customization_text) { %>
-                  <p><strong>Custom Text:</strong> <%= item.customization_text %></p>
-                <% } %>
-                <% if (item.image_path) { %>
-                  <p><strong>Custom Image:</strong><br>
-                    <img src="<%= item.image_path %>" alt="Custom Upload" class="custom-image">
-                  </p>
-                <% } %>
-                <% if (item.whatsapp) { %>
-                  <p><strong>WhatsApp:</strong> <%= item.whatsapp %></p>
-                <% } %>
+      <!-- 2‑column layout on desktop: items (left) + summary (right) -->
+      <div class="cart-layout">
+        <!-- LEFT: cart items -->
+        <div class="cart-items">
+          <% cartItems.forEach(item => { %>
+            <article class="cart-card">
+              <div class="card-media">
+                <img src="<%= item.image_url %>" alt="<%= item.name %>">
               </div>
-            <% } else { %>
-              <p class="default-tag">Customization: Default</p>
-            <% } %>
 
-            <form method="POST" action="/cart/update/<%= item.id %>" class="quantity-form">
-              <button type="submit" name="action" value="decrease">−</button>
-              <span><%= item.quantity %></span>
-              <button type="submit" name="action" value="increase">+</button>
-            </form>
+              <div class="card-body">
+                <div class="card-top">
+                  <h3 class="product-title"><%= item.name %></h3>
+                  <form method="POST" action="/cart/remove/<%= item.id %>">
+                    <button type="submit" class="icon-btn remove-btn" aria-label="Remove item">✕</button>
+                  </form>
+                </div>
 
-            <form method="POST" action="/cart/remove/<%= item.id %>">
-              <button type="submit" class="remove-btn">Remove</button>
-            </form>
-          </div>
+                <!-- Price row -->
+                <div class="price-row">
+                  <div class="unit">₹<%= item.price %> <span class="x">×</span> <%= item.quantity %></div>
+                  <div class="line-total">₹<%= item.price * item.quantity %></div>
+                </div>
+
+                <!-- Customization block -->
+                <% if (!item.use_default) { %>
+                  <details class="custom-block">
+                    <summary>Customization details</summary>
+                    <div class="custom-content">
+                      <% if (item.customization_text) { %>
+                        <p><strong>Custom Text:</strong> <%= item.customization_text %></p>
+                      <% } %>
+
+                      <% if (item.image_path) { %>
+                        <div class="custom-image-wrap">
+                          <img src="<%= item.image_path %>" alt="Custom Upload" class="custom-image">
+                        </div>
+                      <% } %>
+
+                      <% if (item.whatsapp) { %>
+                        <p><strong>WhatsApp:</strong> <%= item.whatsapp %></p>
+                      <% } %>
+                    </div>
+                  </details>
+                <% } else { %>
+                  <p class="default-tag" aria-label="Customization: Default">Customization: Default</p>
+                <% } %>
+
+                <!-- Quantity controls (keeps your POST endpoints) -->
+                <form method="POST" action="/cart/update/<%= item.id %>" class="qty-form" aria-label="Update quantity">
+                  <button type="submit" name="action" value="decrease" class="qty-btn" aria-label="Decrease quantity">−</button>
+                  <span class="qty-value" aria-live="polite"><%= item.quantity %></span>
+                  <button type="submit" name="action" value="increase" class="qty-btn" aria-label="Increase quantity">+</button>
+                </form>
+              </div>
+            </article>
+          <% }) %>
         </div>
-      <% }) %>
-    </div>
 
-    <div class="cart-summary">
-      <h3>Total: ₹<%= totalPrice %></h3>
-      <form action="/checkout" method="GET">
-        <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-      </form>
-    </div>
-  <% } %>
-</div>
+        <!-- RIGHT: summary (sticky on desktop, fixed bar on mobile) -->
+        <aside class="cart-summary" aria-label="Order summary">
+          <div class="summary-card">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>₹<%= totalPrice %></span>
+            </div>
+            <!-- Add more rows later (shipping, coupon, tax) if needed -->
+
+            <div class="summary-total">
+              <span>Total</span>
+              <strong>₹<%= totalPrice %></strong>
+            </div>
+
+            <form action="/checkout" method="GET">
+              <button type="submit" class="btn btn-primary btn-block">Proceed to Checkout</button>
+            </form>
+
+            <p class="summary-note">Secure checkout • Easy returns</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Mobile sticky checkout bar -->
+      <div class="mobile-checkout-bar">
+        <div class="mcb-total">
+          <span>Total</span>
+          <strong>₹<%= totalPrice %></strong>
+        </div>
+        <form action="/checkout" method="GET">
+          <button type="submit" class="btn btn-primary">Checkout</button>
+        </form>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<script src="/js/navbar.js"></script>
 
 </body>
 </html>

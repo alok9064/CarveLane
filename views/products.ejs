@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/products.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 
@@ -14,34 +15,46 @@
   <div class="products-container">
     
     <section class="products-header">
-      <h1 class="products-title">All Products</h1>
-
-      <div class="products-search-bar">
-        <input type="text" placeholder="Search..." class="products-search-input">
-        <select class="products-filter-select">
-          <option value="">All Categories</option>
-          <option value="wood">Wood</option>
-          <option value="acrylic">Acrylic</option>
-          <option value="led">LED</option>
-        </select>
-        <button class="products-search-button">Search</button>
+      <div class="search-bar-container">
+        <input type="text" id="searchInput" placeholder="Search products...">
+        <button id="clearSearch" title="Clear">✖</button>
+      </div>
+    </section>
+    
+    <section class="products-grid-section">
+      <div id="product-results" class="products-grid"></div>
+      <h2 class="section-title">Featured Products</h2>
+      <div class="products-grid">
+        <% products.forEach(product => { %>
+          <div class="product-card">
+            <a href="/products/<%= product.id %>" class="product-card-link">
+              <div class="product-image-wrapper">
+                <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image">
+              </div>
+              <p class="customisable-tag">Customisable</p>
+              <div class="product-info">
+                <p class="product-name"><%= product.name %></p>
+                <!-- ⭐ Rating Section -->
+                <div class="product-rating">
+                  <span class="stars"><%= product.avg_rating %>★</span>
+                  <span class="rating-count">(<%= product.rating_count %>)</span>
+                </div>
+                <p class="product-price">₹<%= product.price %></p>
+                <% if (product.original_price && product.original_price > product.price) { %>
+                  <p class="product-original-price">₹<%= product.original_price %></p>
+                  <p class="product-discount">
+                    <%= Math.round(((product.original_price - product.price) / product.original_price) * 100) %>% off
+                  </p>
+                <% } %>
+              </div>
+            </a>
+          </div>
+        <% }) %>
       </div>
     </section>
 
-    <section class="products-grid">
-        <% products.forEach(product => { %>
-            <a href="/products/<%= product.id %>" class="product-card-link">
-                <div class="product-card">
-                    <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image">
-                    <h3 class="product-name"><%= product.name %></h3>
-                    <p class="product-price">₹<%= product.price %></p>
-                    <button class="product-btn">View Details</button>
-                </div>
-            </a>
-        <% }) %>
-    </section>
-
   </div>
-
+<script src="/js/navbar.js"></script>
+<script src="/js/search.js"></script>
 </body>
 </html>

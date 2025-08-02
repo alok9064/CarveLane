@@ -47,3 +47,255 @@
     <p>You have no orders yet.</p>
   <% } %>
 </section>
+
+
+<select class="home-search-filter">
+          <option value="">All Categories</option>
+          <% categories.forEach(category => { %>
+              <option value="<%= category.name %>"><%= category.name %></option>
+          <% }); %>
+        </select>
+
+
+<section class="review-sect">
+  <div class="rev-container swiper">
+    <div class="rev-wrapper">
+      <div class="rev-card-list swiper-wrapper">
+        <% for (let i = 0; i < 5; i++) { %>
+          <div class="rev-card swiper-slide">
+            <div class="rev-card-image">
+              <img src="images/product1.jpg" alt="review1">
+              <p class="rev-card-tag">Customisable</p>
+            </div>
+            <div class="rev-card-content">
+              <h3 class="rev-card-title">Engraved Photo Frame</h3>
+              <p class="rev-card-text">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+              </p>
+              <div class="rev-card-footer">
+                <div class="rev-card-profile">
+                  <img src="images/dp_alok.jpg" alt=""Reviewer>
+                  <div class="rev-card-profile-info">
+                    <span class="rev-card-profile-name">Siddharth Shukla</span>
+                    <span class="rev-card-profile-role">Developer</span>
+                  </div>
+                </div>
+                <a href="" class="rev-card-button">Read more</a>
+              </div>
+            </div>
+          
+          </div>
+        <% } %>
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+      <!-- If we need navigation buttons -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </div>
+</section>
+<style>
+  .review-sect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+
+}
+
+.rev-wrapper {
+  max-width: 1100px;
+  padding: 20px 10px;
+  margin: 0 60px 35px;
+  overflow: hidden;
+}
+
+.rev-wrapper .rev-card {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background: #f2f2f2;
+  border-radius: 20px;
+  box-shadow: 0 10px 10px rgba(0 0 0 0.05);
+}
+
+.rev-wrapper .rev-card:hover {
+  transform: translateY(-10px);
+}
+
+.rev-card .rev-card-image img {
+  width: 100%;
+  padding: 10px;
+  border-radius: 22px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.rev-card .rev-card-image {
+  position: relative;
+}
+
+.rev-card .rev-card-image .rev-card-tag {
+  position: absolute;
+  left: 25px;
+  top: 25px;
+  border-radius: 30px;
+  color: #e2725b ;
+  font-weight: 600;
+  padding: 5px 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.9);
+}
+.rev-card .rev-card-content {
+  flex: 1;
+  display:  flex;
+  flex-direction: column;
+  padding: 10px 25px 25px;
+}
+
+.rev-card .rev-card-title {
+  color: #222;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 15px;
+}
+
+.rev-card .rev-card-content .rev-card-text {
+  color: #747474;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.rev-card .rev-card-content .rev-card-footer {
+  display: flex;
+  align-items: center;
+  padding-top: 15px;
+  margin-top: auto;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.rev-card .rev-card-footer .rev-card-profile {
+  display: flex;
+  align-items: center;
+}
+
+
+.rev-card .rev-card-profile img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.rev-card .rev-card-profile .rev-card-profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rev-card .rev-card-profile .rev-card-profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #202020;
+}
+
+.rev-card .rev-card-profile .rev-card-profile-role {
+  font-size: 0.8rem;
+  color: #7a7a7a;
+}
+
+.rev-card .rev-card-footer .rev-card-button {
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 0.81rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  transition: all 0.3s ease;
+}
+
+.rev-card .rev-card-footer .rev-card-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3);
+}
+
+.rev-wrapper .swiper-pagination-bullet {
+  height: 15px;
+  width: 15px;
+  overflow: hidden;
+  opacity: 1;
+  background: #B1B3F8;
+}
+
+.rev-wrapper .swiper-pagination-bullet-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;background: #6366f1;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: autoplay-loading 5s linear forwards;
+}
+
+.container:hover .wrapper .swiper-pagination-bullet-active::before {
+  animation-play-state: paused;
+}
+
+
+@keyframes autoplay-loading {
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.rev-wrapper .swiper-button-prev,
+.rev-wrapper .swiper-button-next {
+  color: #6366f1;
+  margin-top: -35px;
+  transition: all 0.3s;
+}
+
+.rev-wrapper .swiper-button-prev:hover,
+.rev-wrapper .swiper-button-next:hover {
+  color: #8b5cf6;
+}
+
+@media (max-width:1024px) {
+
+}
+
+@media (max-width:768px) {
+  .rev-wrapper {
+    margin: 0 10px 25px;
+  }
+
+  .rev-wrapper .swiper-button-prev,
+  .rev-wrapper .swiper-button-next {
+    display: none;;
+  }
+}
+
+@media (max-width:480px) {
+
+}
+</style>
+
+
+<% if (product.rating && product.rating_count) { %>
+              <div class="product-rating">
+                <span class="star">★</span>
+                <span class="rating-value"><%= product.rating.toFixed(1) %></span>
+                <span class="rating-count">(<%= product.rating_count.toLocaleString() %>)</span>
+              </div>
+            <% } %>

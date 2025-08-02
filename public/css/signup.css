@@ -39,7 +39,7 @@
   max-width: 900px;
   margin: 3rem auto;
   background: white;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -76,6 +76,7 @@
 }
 
 .signup-right-pane h2 {
+  color: #034C53;
   font-size: 1.8rem;
   margin-bottom: 1rem;
 }
@@ -91,7 +92,7 @@
   width: 100%;
   padding: 0.7rem;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  /* border-radius: 5px; */
 }
 
 .step1-buttons {
@@ -102,21 +103,21 @@
 }
 
 #send-otp-btn {
-  background-color: #222;
+  background-color: #034C53;
   color: white;
   padding: 0.6rem 1rem;
   border: none;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   cursor: pointer;
 }
 
 .google-signup-btn {
-  background-color: #4285F4;
+  background-color: #034C53;
   color: white;
   padding: 0.6rem 1rem;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: 500;
+  border: none;
+  /* border-radius: 5px; */
+  cursor: pointer;
 }
 
 .or-text {
@@ -137,11 +138,11 @@
 }
 
 .otp-actions button {
-  background-color: #222;
+  background-color: #034C53;
   color: white;
   padding: 0.6rem 1rem;
   border: none;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   cursor: pointer;
 }
 
@@ -183,11 +184,11 @@
 }
 
 #signup-submit {
-  background-color: #222;
+  background-color: #034C53;
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   cursor: pointer;
 }
 

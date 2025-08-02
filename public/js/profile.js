@@ -84,3 +84,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+const profilePicture = document.getElementById('profilePicture');
+const ppInput = document.getElementById('ppInput');
+
+// When clicking the profile picture, trigger file input
+profilePicture.addEventListener('click', () => {
+  ppInput.click();
+});
+
+// When file is selected, submit form
+ppInput.addEventListener('change', (e) => {
+  if(e.target.files.length > 0) {
+    document.getElementById('ppForm').submit();
+  }
+});

@@ -1,4 +1,7 @@
 /* ===== Global Reset & Base Styles ===== */
+html{
+  scroll-behavior: smooth;
+}
 * {
   margin: 0;
   padding: 0;
@@ -11,6 +14,8 @@ body {
   color: #222;
   line-height: 1.6;
   scroll-behavior: smooth;
+  padding: 80px;
+  padding-bottom: 0;
 }
 
 a {
@@ -20,4 +25,29 @@ a {
 
 ul {
   list-style: none;
+}
+
+
+@media(max-width: 1024px) {
+  body {
+    padding: 60px 0;
+  }
+}
+
+@media(max-width: 976px) {
+  body {
+    padding: 60px 12px;
+  }
+}
+@media(max-width: 768px) {
+  body {
+    padding: 80px 0;
+  }
+}
+@media(max-width: 500px) {
+  body {
+    padding: 60px 0;
+    padding-bottom: 0;
+  }
+
 }

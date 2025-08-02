@@ -6,42 +6,308 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/shopByCat.css">
+  <link rel="stylesheet" href="/css/topProducts.css">
+  <link rel="stylesheet" href="/css/aboutNcontact.css">
+  <link rel="stylesheet" href="/css/loader.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 </head>
 <body>
 
   <%- include("partials/navbar") %>
 
   <div class="home-container">
-    
+    <div class="search-bar-container">
+      <input type="text" id="searchInput" placeholder="Search products...">
+      <button id="clearSearch" title="Clear">✖</button>
+    </div>
+    <div id="searchResults"></div>
     <section class="home-hero">
+      
       <div class="home-hero-content">
-        <h1 class="home-title">Welcome to CarveLane</h1>
-        <p class="home-subtitle">Personalized & Laser-Cut Gifts Crafted Just for You</p>
-
-        <div class="home-search-bar">
-          <input type="text" placeholder="Search products..." class="home-search-input">
-          <select class="home-search-filter">
-            <option value="">All Categories</option>
-            <% categories.forEach(category => { %>
-                <option value="<%= category.name %>"><%= category.name %></option>
-            <% }); %>
-          </select>
-          <button class="home-search-button">Search</button>
-        </div>
+        <!-- <h1 class="home-title">Unique Laser-Cut Products Just for You</h1>
+        <p class="home-subtitle">Celebrate every moment with personalized perfection</p> -->
+        
       </div>
-    </section>
+    </section> 
+  </div>
+    
 
-    <section class="home-banner">
+    <!-- <section class="home-banner">
         <div class="home-banner-carousel" id="bannerCarousel">
             <img src="/images/banner1.jpg" alt="Banner 1" class="home-banner-image active">
             <img src="/images/banner2.jpg" alt="Banner 2" class="home-banner-image">
             <img src="/images/banner3.jpg" alt="Banner 3" class="home-banner-image">
             <img src="/images/banner4.jpg" alt="Banner 4" class="home-banner-image">
         </div>
+    </section> -->
+    <!-- 🌟 Shop by Category Section -->
+    <section class="shop-by-category">
+      <h2 class="section-title">Shop by Category</h2>
+      <div class="swiper categorySwiper">
+        <div class="category-slider swiper-wrapper" id="categorySlider">
+          <div class="swiper-slide">
+            <div class="category-card">
+              <img src="/images/birthday.jpg" alt="Birthday" />
+              <p>Birthday</p>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="category-card">
+              <img src="/images/anniversary.jpg" alt="Birthday" />
+              <p>Anniversary</p>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="category-card">
+              <img src="/images/corporate.jpg" alt="Birthday" />
+              <p>Corporate</p>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="category-card">
+              <img src="/images/art&decor.jpg" alt="Birthday" />
+              <p>Art & Decor</p>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="category-card">
+              <img src="/images/doorNA.jpg" alt="Birthday" />
+              <p>Door Name Plate</p>
+            </div>
+          </div>
+        </div>
+        <!-- Controls (optional) -->
+        <div class="swiper-button-prev cat-prev"></div>
+        <div class="swiper-button-next cat-next"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </section>
+
+    <!-- 🌟 Top Products Section -->
+    <section class="top-products-section">
+      <h2 class="top-products-section-title">Top Products</h2>
+      <div class="swiper relatedSwiper">
+        <div class="rel-products-grid swiper-wrapper">
+          <% topProducts.forEach(product => { %>
+            <div class="swiper-slide">
+              <div class="rel-product-card">
+                <a href="/products/<%= product.id %>" class="product-card-link">
+                  <div class="product-image-wrapper">
+                    <img src="<%= product.image_url %>" alt="<%= product.name %>" class="product-image">
+                  </div>
+                  <p class="customisable-tag">Customisable</p>
+                  <div class="product-info">
+                    <p class="product-name"><%= product.name %></p>
+                    <!-- ⭐ Rating Section -->
+                    <div class="product-rating">
+                      <span class="stars"><%= product.avg_rating %>★</span>
+                      <span class="rating-count">(<%= product.rating_count %>)</span>
+                    </div>
+                    <p class="product-price">₹<%= product.price %></p>
+                    <% if (product.original_price && product.original_price > product.price) { %>
+                      <p class="product-original-price">₹<%= product.original_price %></p>
+                      <p class="product-discount">
+                        <%= Math.round(((product.original_price - product.price) / product.original_price) * 100) %>% off
+                      </p>
+                    <% } %>
+                  </div>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <!-- Controls (optional) -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next "></div>
+        <div class="swiper-pagination "></div>
+      </div>
+      <div class="explore-all">
+        <a href="/products" class="btn-primary">Explore All Products</a>
+      </div>
+    </section>
+
+
+<section class="review-slider-section">
+  <h2 class="review-slider-heading">What Our Customers Say</h2>
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      <% reviews.forEach(review => { %>
+        <div class="swiper-slide">
+          <div class="rel-product-card">
+
+            <div class="product-image-wrapper">
+              <% if (review.review_image) { %>
+                <img src="<%= review.review_image %>" alt="Review Image" class="product-image" />
+              <% } else { %>
+                <img src="<%= review.product_image %>" alt="Product Image" class="product-image" />
+              <% } %>
+            </div>
+
+            <div class="review-info">
+              <img src="<%= review.reviewer_photo %>" alt="<%= review.reviewer_name %>" class="review-user-img" />
+              <div class="review-user-info">
+                <h4 class="review-user-name"><%= review.reviewer_name %></h4>
+
+                <!-- Avg + stars + count -->
+                <div class="review-stars">
+                  <span class="avg"><%= review.avg_rating.toFixed(1) %></span>
+                  <% for (let i = 1; i <= 5; i++) { %>
+                    <span class="<%= i <= review.rating ? 'star filled' : 'star' %>">★</span>
+                  <% } %>
+                  <span class="count">(<%= review.rating_count %>)</span>
+                </div>
+
+                <p class="review-date"><%= new Date(review.created_at).toLocaleDateString() %></p>
+              </div>
+            </div>
+
+            <div class="review-text">
+              <p><%= review.review_text %></p>
+            </div>
+
+          </div>
+        </div>
+      <% }) %>
+    </div>
+    <!-- Controls (optional) -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+   
+</section>
+
+
+
+
+    <!-- About Section -->
+    <section id="about-section" class="info-section">
+      <div class="container">
+        <h2>About CarveLane</h2>
+        <p>
+          CarveLane by S.K. Art is a family-run brand offering handcrafted wooden decor and personalized gifting items. With years of dedication to craftsmanship, we bring you premium-quality, customizable products made with love.
+        </p>
+      </div>
+    </section>
+    <%- include("partials/loader") %>
+    <!-- Contact Section -->
+    <section id="contact-section" class="info-section">
+      <div class="container">
+        <h2>Contact Us</h2>
+        <% if (successMessage) { %>
+          <p class="contact-success-message" style="text-align: center;"><%= successMessage %></p>
+        <% } %>
+        <form action="/contact" method="POST" class="contact-form">
+          <input type="text" name="name" placeholder="Your Name" required />
+          <input type="email" name="email" placeholder="Your Email" required />
+          <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+          <button type="submit" id="send-cont-msg"><i class="fa-solid fa-paper-plane"></i>   Send Message</button>
+        </form>
+      </div>
     </section>
 
   </div>
+  <%- include("partials/footer") %>
+  
   <script src="/js/home.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/homeSearch.js"></script>
+  <script src="/js/homeReview.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const swiper = new Swiper(".relatedSwiper", {
+        loop: true,
+        spaceBetween: 15,
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        breakpoints: {
+          0: {
+            slidesPerView: 2,
+          },
+          600: {
+            slidesPerView: 2,
+          },
+          900: {
+            slidesPerView: 3,
+          },
+          1100: {
+            slidesPerView:4
+          }
+        },
+      });
+
+      const reviewSwiper = new Swiper(".mySwiper", {
+        loop: true,
+        spaceBetween: 20,
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        breakpoints: {
+          0: {
+            slidesPerView: 2,
+          },
+          600: {
+            slidesPerView: 2,
+          },
+          900: {
+            slidesPerView: 3,
+          },
+          1100: {
+            slidesPerView:4
+          }
+        },
+      });
+
+       // 🟢 Category Swiper (with custom breakpoints)
+      const categorySwiper = new Swiper(".categorySwiper", {
+        loop: true,
+        spaceBetween: 20,
+        navigation: {
+          nextEl: ".cat-next",
+          prevEl: ".cat-prev",
+        },
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+        breakpoints: {
+          0: {
+            slidesPerView: 2,
+          },
+          500: {
+            slidesPerView: 2,
+          },
+          768: {
+            slidesPerView: 3,
+          },
+          1100: {
+            slidesPerView: 4,
+          },
+          1300: {
+            slidesPerView: 5,
+          }
+        },
+      });
+
+    });
+  </script>
 
 </body>
 </html>

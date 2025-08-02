@@ -17,10 +17,27 @@
           <p><strong>Date:</strong> <%= new Date(order.created_at).toLocaleString() %></p>
         </div>
 
+        <div class="order-tracking-stepper">
+          <% const steps = ['Pending', 'Accepted', 'Shipped', 'Out for Delivery', 'Delivered']; %>
+          <% steps.forEach((step, index) => { %>
+            <div class="step">
+              <div class="circle <%= steps.indexOf(order.status) >= index ? 'active' : '' %>"><%= index + 1 %></div>
+              <p class="<%= steps.indexOf(order.status) >= index ? 'active' : '' %>"><%= step %></p>
+            </div>
+            <% if (index !== steps.length - 1) { %>
+              <div class="line <%= steps.indexOf(order.status) > index ? 'active' : '' %>"></div>
+            <% } %>
+          <% }) %>
+        </div>
+
+
         <div class="order-items">
           <% order.items.forEach(item => { %>
             <div class="order-item">
               <p><strong>Product ID:</strong> <%= item.product_id %></p>
+              <p><strong>Price:</strong><%= item.unit_price %></p>
+              <p><strong>Quantity:</strong> <%= item.quantity %></p>
+              <p><strong>Subtotal:</strong> <%= item.subtotal %></p>
               <a href="/products/<%= item.product_id %>">
                 <img src="<%= item.image_url %>" alt="Product image" class="custom-order-img" >
               </a>
