@@ -255,3 +255,9 @@
 @keyframes stroke {
     100% { stroke-dashoffset: 0; }
 }
+
+@media (max-width:1024px) {
+  .signup-left-pane {
+    display: none;
+  }
+}

@@ -173,6 +173,11 @@
       align-items: center;
       gap: 0.5rem;
   }
+  .profile-image2 {
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+  }
 
 .nav-cat-main {
     display: flex;

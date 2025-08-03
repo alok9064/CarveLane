@@ -47,16 +47,17 @@
             <li><a href="/">Home</a></li>
             <li><a href="/products">Products</a></li>
             <li><a href="/profile?section=order-history">My Orders</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#about-section">About</a></li>
+            <li><a href="#contact-section">Contact</a></li>
         </ul>
         <% if (user) { %>
 
         <div class="mobile-profile">
             <a href="/profile">
-              <% if (user.profile_picture) { %>
-                <img src="<%= user.profile_picture || '/images/default-profile.jpg' %>" alt="profile-picture" class="profile-image">
+              <% if (profile == null) { %>
+              <img src="/images/person-circle.svg" alt="profile-picture" class="profile-image2">
               <% } else { %>
-                <i class="fas fa-user-circle"></i>
+              <img src="<%=profile.profile_picture_url || '/images/user.png'%>" alt="profile-picture" class="profile-image2">
               <% } %>
               My Account
             </a>
