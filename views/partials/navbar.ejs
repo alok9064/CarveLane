@@ -8,6 +8,7 @@
     </div>
 
     <div class="nav-logo">
+      <img src="/images/logo.png" alt="" style="height: 40px;" style="width: 40px;">
       <a href="/">CarveLane</a>
     </div>
     <ul class="nav-links">
@@ -31,7 +32,7 @@
             <% if (profile == null) { %>
              <img src="/images/person-circle.svg" alt="profile-picture" class="profile-image">
             <% } else { %>
-            <img src="<%=profile.profile_picture_url || '/images/person-circle.svg' %>" alt="profile-picture" class="profile-image">
+            <img src="<%=profile.profile_picture_url || '/images/user.png'%>" alt="profile-picture" class="profile-image">
             <% } %>
           </a>
         </div>
@@ -65,11 +66,11 @@
   </nav>
   <nav class="nav-cat-main">
     <div class="nav-cat-links">
-      <a href="/category/birthday">BRTHDAY</a>
-      <a href="/category/anniversary">ANNIVERSARY</a>
-      <a href="/category/corporate">CORPORATE</a>
-      <a href="/category/art-decor">ARTS & DECOR</a>
-      <a href="/category/door-nameplate">DOOR NAME PLATE</a>
+      <a href="#">BRTHDAY</a>
+      <a href="#">ANNIVERSARY</a>
+      <a href="#">CORPORATE</a>
+      <a href="#">ARTS & DECOR</a>
+      <a href="#">DOOR NAME PLATE</a>
     </div>
   </nav>
 </nav>

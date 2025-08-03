@@ -16,7 +16,7 @@ function nextSlide() {
   showSlide(currentSlide);
 }
 
-setInterval(nextSlide, 3000);
+setInterval(nextSlide, 5000);
 
 
 // loader for send contact message

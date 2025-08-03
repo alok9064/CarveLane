@@ -291,14 +291,27 @@ app.get('/products/:id', async (req, res) => {
 
     //Fetch reviews 
     const reviewResult = await pool.query(
-      `SELECT pr.*, u.name
+      `SELECT pr.*, u.name, up.profile_picture_url
       FROM product_reviews pr
       JOIN users u ON pr.user_id = u.id
+      LEFT JOIN user_profiles up ON u.id = up.user_id
       WHERE pr.product_id = $1
       ORDER BY pr.created_at DESC`,
       [productId]
     );
+  
     const reviews = reviewResult.rows;
+
+      reviews.forEach((review) => {
+      if (review.profile_picture_url && !review.profile_picture_url.startsWith('/')) {
+        review.profile_picture_url = '/' + review.profile_picture_url;
+      }
+    });
+    reviews.forEach((review, index) => {
+      console.log(`Review ${index}: ${review.profile_picture_url}`);
+    });
+
+
 
     //Fetch ratings by Calculating avg rating
     const avgRatingResult = await pool.query (
@@ -313,6 +326,7 @@ app.get('/products/:id', async (req, res) => {
       `SELECT COUNT(*) AS rating_counts FROM product_reviews WHERE product_id = $1`, [productId]
     );
     const ratingCount = ratingCountResult.rows[0].rating_counts;
+
 
     // Display review form
     let isVerifiedBuyer = false;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title><%= product.name %> | CarveLane</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/navbar.css">
   <link rel="stylesheet" href="/css/productDetail.css">
@@ -212,7 +213,7 @@
               </div>
               <div class="review-info">
                     
-                <img src="/images/dp_alok.jpg" alt="User" class="review-user-img" />
+                <img src="<%= review.profile_picture_url %>" alt="User" class="review-user-img" />
                 <div class="review-user-info">
                   <h4 class="review-user-name"><%= review.name %></h4>
 

@@ -35,6 +35,11 @@
   height: 50px;
   width: 50px;
 } */
+ .nav-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ }
 
 .nav-logo a {
   font-size: 1.5rem;
