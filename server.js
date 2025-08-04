@@ -12,12 +12,19 @@ import { requireLogin } from './middleware/auth.js';
 import { upload } from './middleware/upload.js'; // adjust path as needed
 import { uploadReviewImage } from "./middleware/uploadReviewImage.js";
 import adminRouter from './routes/adminRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { memoryUpload } from './middleware/memoryUpload.js';
+import { uploadToSupabase } from './utils/supabaseUpload.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 // Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,       // Set in .env
@@ -302,10 +309,15 @@ app.get('/products/:id', async (req, res) => {
   
     const reviews = reviewResult.rows;
 
-      reviews.forEach((review) => {
-      if (review.profile_picture_url && !review.profile_picture_url.startsWith('/')) {
+    reviews.forEach((review) => {
+      if (
+        review.profile_picture_url &&
+        !review.profile_picture_url.startsWith('/') &&
+        !review.profile_picture_url.startsWith('http')
+      ) {
         review.profile_picture_url = '/' + review.profile_picture_url;
       }
+
     });
     reviews.forEach((review, index) => {
       console.log(`Review ${index}: ${review.profile_picture_url}`);
@@ -359,12 +371,13 @@ app.get('/products/:id', async (req, res) => {
   }
 });
 
-// add a review
-app.post("/product/:id/review", uploadReviewImage.single("reviewImage"), async (req, res) => {
+
+// add a review with optional image upload to Supabase
+app.post("/product/:id/review", requireLogin, memoryUpload.single("reviewImage"), async (req, res) => {
   const productId = req.params.id;
   const userId = req.session.user?.id;
   const { rating, review_text } = req.body;
-  const imagePath = req.file ? `/uploads/reviews/${req.file.filename}` : null;
+  let imageUrl = null;
 
   if (!userId) {
     return res.status(401).send("Login required to submit review");
@@ -375,24 +388,36 @@ app.post("/product/:id/review", uploadReviewImage.single("reviewImage"), async (
     const result = await pool.query(
       `SELECT oi.id FROM order_items oi
        INNER JOIN orders o ON oi.order_id = o.id
-       WHERE o.user_id = $1 AND oi.product_id = $2 AND o.payment_status = 'Paid' LIMIT 1`,
-      [userId, productId]
+       WHERE o.user_id = $1 AND oi.product_id = $2 AND o.payment_status = 'Paid' and o.status = $3
+       LIMIT 1`,
+      [userId, productId, "Delivered"]
     );
 
     if (result.rows.length === 0) {
       return res.status(403).send("Only buyers can review this product.");
     }
 
-    // 2. Insert review
+    // 2. Upload image to Supabase (if exists)
+    if (req.file) {
+      const uniqueFilename = `review-${userId}-${Date.now()}${path.extname(req.file.originalname)}`;
+      imageUrl = await uploadToSupabase(
+        req.file.buffer,
+        uniqueFilename,
+        'review-images', // ✅ your Supabase bucket name
+        req.file.mimetype
+      );
+    }
+
+    // 3. Insert review into DB
     await pool.query(
       `INSERT INTO product_reviews (user_id, product_id, rating, review_text, review_image)
        VALUES ($1, $2, $3, $4, $5)`,
-      [userId, productId, rating, review_text, imagePath]
+      [userId, productId, rating, review_text, imageUrl]
     );
 
     res.redirect(`/products/${productId}#reviews`);
   } catch (err) {
-    console.error(err);
+    console.error("Error submitting review:", err);
     res.status(500).send("Error submitting review");
   }
 });
@@ -409,6 +434,7 @@ app.get('/cart', requireLogin, async (req, res) => {
       FROM cart_items ci
       JOIN products p ON ci.product_id = p.id
       WHERE ci.user_id = $1
+      ORDER BY ci.id DESC
     `, [userId]);
 
     const cartItems = result.rows;
@@ -425,7 +451,7 @@ app.get('/cart', requireLogin, async (req, res) => {
   }
 });
 
-app.post('/cart/add/:id', requireLogin, upload.single('customImage'), async (req, res) => {
+app.post('/cart/add/:id', requireLogin, memoryUpload.single('customImage'), async (req, res) => {
   const userId = req.session.user.id;
   const productId = parseInt(req.params.id);
   const {
@@ -438,9 +464,15 @@ app.post('/cart/add/:id', requireLogin, upload.single('customImage'), async (req
   const use_default = useDefaultCheckbox === 'on';
   const customization_text = use_default ? null : customText || null;
   const whatsapp_number = use_default ? null : whatsapp || null;
-  const image_path = use_default || !req.file ? null : `/uploads/${req.file.filename}`;
+  let image_path = null;
 
   try {
+
+    if (!use_default && req.file) {
+      const fileName = `custom_${Date.now()}_${req.file.originalname}`;
+      image_path = await uploadToSupabase(req.file.buffer, fileName, "custom-images", req.file.mimetype);
+    }
+
     await pool.query(
       `INSERT INTO cart_items 
         (user_id, product_id, quantity, customization_text, image_path, whatsapp, use_default)
@@ -508,7 +540,7 @@ app.post('/cart/remove/:id', requireLogin, async (req, res) => {
 });
 
 // Buy Now 
-app.post('/buy-now/customize', requireLogin, upload.single('customImage'), async (req, res) => {
+app.post('/buy-now/customize', requireLogin, memoryUpload.single('customImage'), async (req, res) => {
   const {
     product_id,
     quantity,
@@ -520,10 +552,14 @@ app.post('/buy-now/customize', requireLogin, upload.single('customImage'), async
   console.log("productId: ", product_id);
   console.log("ProductId: ", parseInt(product_id));
  
-  const image_path = req.file ? `/uploads/${req.file.filename}` : null;
+  let image_path = null;
+  
 
   if (actionType === 'buy-now') {
     // Save item in session (only 1 item for buy now)
+    const fileName = `custom_${Date.now()}_${req.file.originalname}`;
+    image_path = await uploadToSupabase(req.file.buffer, fileName, "custom-images", req.file.mimetype);
+
     req.session.buyNowItem = {
       product_id: parseInt(product_id),
       quantity: parseInt(quantity),
@@ -889,6 +925,11 @@ app.post('/signup', async (req, res) => {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
 
+    await pool.query(
+      'INSERT INTO user_profiles (user_id) VALUES ($1)',
+      [user.id]
+    );
+
     // 🔐 Clear session
     req.session.otp = null;
     req.session.otpEmail = null;
@@ -921,26 +962,36 @@ app.post('/signup', async (req, res) => {
 });
 
 // Render login form
-app.get('/login', (req, res) => {
-  res.render('login');
+app.get('/login', async (req, res) => {
+  // profile (if logged in)
+  let profile = null;
+  if (req.session.user) {
+    const userId = req.session.user.id;
+    const pr = await pool.query(
+      'SELECT profile_picture_url FROM user_profiles WHERE user_id = $1',
+      [userId]
+    );
+    profile = pr.rows[0] || null;
+  }
+  const redirectTo = req.query.redirectTo || '/';
+  res.render('login', { redirectTo, profile });
 });
 
-// Handle login submission
+//Handle login submission
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, redirectTo } = req.body;
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
 
     if (!user) {
-      return res.status(400).send("No user found with that email.");
+      return res.status(400).json({ error: "No user found with that email." });
     }
 
     const match = await bcrypt.compare(password, user.password);
-
     if (!match) {
-      return res.status(400).send("Incorrect password.");
+      return res.status(400).json({ error: "Incorrect password." });
     }
 
     // Save user in session
@@ -950,12 +1001,13 @@ app.post('/login', async (req, res) => {
       email: user.email
     };
 
-    res.redirect('/');
+    return res.status(200).json({ success: true, redirectTo: redirectTo || '/' });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).send("Login failed");
+    return res.status(500).json({ error: "Login failed. Please try again later." });
   }
 });
+
 
 // Logout
 app.post('/logout', (req, res) => {
@@ -1021,22 +1073,31 @@ app.get('/profile', requireLogin, async (req, res) => {
 });
 
 // pp update
-app.post('/update-pp', requireLogin, upload.single('image'), async (req, res) => {
+app.post('/update-pp', requireLogin, memoryUpload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send("No file uploaded");
   }
 
-  const pp_url = 'uploads/' + req.file.filename;
+  // const pp_url = 'uploads/' + req.file.filename;
   const userId = req.session.user.id;
+  const uniqueFilename = `user-${userId}-${Date.now()}${path.extname(req.file.originalname)}`;
 
   try {
+
+    const imageUrl = await uploadToSupabase(
+      req.file.buffer,
+      uniqueFilename,
+      'profile-pictures', // your Supabase bucket
+      req.file.mimetype
+    );
+
     const result = await pool.query(`
       INSERT INTO user_profiles (user_id, profile_picture_url)
       VALUES ($1, $2)
       ON CONFLICT (user_id)  -- Assuming user_id is the unique column
       DO UPDATE SET profile_picture_url = $2
       RETURNING *`, 
-      [userId, pp_url]);
+      [userId, imageUrl]);
 
     res.redirect('/profile');
   } catch (error) {

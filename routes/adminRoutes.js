@@ -1,10 +1,18 @@
 import express from 'express';
 import { upload } from '../middleware/upload.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { memoryUpload } from '../middleware/memoryUpload.js';
+import { uploadToSupabase } from '../utils/supabaseUpload.js';
 import dotenv from 'dotenv';
 import  pool  from '../middleware/db.js';
 
 const router = express.Router();
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Admin Login form
 router.get('/login', (req, res) => {
@@ -46,7 +54,7 @@ router.get('/add-product', requireAdmin, async(req, res) => {
 });
 
 // Handle product form submission
-router.post('/add-product', requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/add-product', requireAdmin, memoryUpload.single('image'), async (req, res) => {
   const { name, price, description, category, customCategory } = req.body;
   const imageFile = req.file;
 
@@ -54,7 +62,8 @@ router.post('/add-product', requireAdmin, upload.single('image'), async (req, re
     return res.status(400).send("Missing fields");
   }
 
-  const image_url = '/uploads/' + imageFile.filename;
+  let image_path = null;
+
   const finalCategory = category === '__custom__'? customCategory : category;
   // Ensure new category gets saved to DB
   if (category === '__custom__' && customCategory) {
@@ -62,9 +71,11 @@ router.post('/add-product', requireAdmin, upload.single('image'), async (req, re
   }
 
   try {
+    const fileName = `custom_${Date.now()}_${req.file.originalname}`;
+    image_path = await uploadToSupabase(req.file.buffer, fileName, "product-images", req.file.mimetype);
     await pool.query(
       'INSERT INTO products (name, price, description, image_url, category) VALUES ($1, $2, $3, $4, $5)',
-      [name, price, description, image_url, finalCategory]
+      [name, price, description, image_path, finalCategory]
     );
 
     res.redirect('/admin/products');
@@ -108,7 +119,7 @@ router.get('/edit-product/:id', requireAdmin, async (req, res) => {
   }
 });
 
-router.post('/edit-product/:id', requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/edit-product/:id', requireAdmin, memoryUpload.single('image'), async (req, res) => {
   const productId = req.params.id;
   const { name, price, description, category, customCategory } = req.body;
   const imageFile = req.file;
@@ -121,7 +132,9 @@ router.post('/edit-product/:id', requireAdmin, upload.single('image'), async (re
   try {
     let image_url = req.body.currentImage;
     if (imageFile) {
-      image_url = '/uploads/' + imageFile.filename;
+      const fileName = `custom_${Date.now()}_${req.file.originalname}`;
+      image_url = await uploadToSupabase(req.file.buffer, fileName, "product-images", req.file.mimetype);
+      
     }
     await pool.query(
       'UPDATE products SET name = $1, price = $2, description = $3, image_url = $4, category = $5 WHERE id = $6',

@@ -32,7 +32,7 @@
             <% if (profile == null) { %>
              <img src="/images/person-circle.svg" alt="profile-picture" class="profile-image">
             <% } else { %>
-            <img src="<%=profile.profile_picture_url || '/images/user.png'%>" alt="profile-picture" class="profile-image">
+            <img src="<%=profile.profile_picture_url %>" alt="profile-picture" class="profile-image">
             <% } %>
           </a>
         </div>
@@ -57,7 +57,7 @@
               <% if (profile == null) { %>
               <img src="/images/person-circle.svg" alt="profile-picture" class="profile-image2">
               <% } else { %>
-              <img src="<%=profile.profile_picture_url || '/images/user.png'%>" alt="profile-picture" class="profile-image2">
+              <img src="<%=profile.profile_picture_url%>" alt="profile-picture" class="profile-image2">
               <% } %>
               My Account
             </a>

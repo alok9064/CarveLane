@@ -218,7 +218,7 @@
                   <h4 class="review-user-name"><%= review.name %></h4>
 
                   <!-- Star Rating -->
-                  <div class="review-stars"><%= avgRating %>
+                  <div class="review-stars"><%= review.rating %>
                     <% for (let i = 1; i <= 5; i++) { %>
                       <span class="<%= i <= review.rating ? 'star filled' : 'star' %>">★</span>
                     <% } %> 

@@ -22,15 +22,51 @@
 
     <div class="login-right-pane">
       <h1>Login</h1>
-      <form action="/login" method="POST">
+      <form id="login-form">
+        <p id="step3-message" class="error-message"></p>
         <input type="email" name="email" placeholder="Email" required  class="login-email"/>
         <input type="password" name="password" placeholder="Password" required class="login-pass"/>
         <p class="login-forgot-pass"><a href="#">Forgot Password ?</a></p>
+        <input type="hidden" name="redirectTo" id="redirectTo" value="<%= redirectTo %>">
+
         <button type="submit">Login</button>
+        
       </form>
       <p>New user? <a href="/signup">Create an account</a></p>
     </div>
   </div>
+ <script>
+  document.querySelector('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const message = document.getElementById('step3-message');
+
+  try {
+    const res = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      message.textContent = result.error || 'Login failed';
+      message.style.color = 'red';
+    } else {
+      window.location.href = result.redirectTo;
+    }
+  } catch (err) {
+    message.textContent = 'Something went wrong!';
+    message.style.color = 'red';
+  }
+});
+
+</script>
+
+
   <script src="/js/navbar.js"></script>
 </body>
 </html>
